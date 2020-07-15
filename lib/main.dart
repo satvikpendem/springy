@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 
 void main() {
   WidgetsApp.debugAllowBannerOverride = false;
   runApp(MyApp());
 }
 
-const Duration kDefaultDuration = const Duration(milliseconds: 250);
+const Duration kDefaultDuration = Duration(milliseconds: 250);
 
 class MyApp extends StatelessWidget {
   @override
@@ -34,7 +35,7 @@ class Box extends StatefulWidget {
 
 class _BoxState extends State<Box> with TickerProviderStateMixin {
   static const double kInitialSize = 100;
-  static const double kSizeChange = 10;
+  static const double kSizeChange = 200;
   static const double kFinalSize = kInitialSize + kSizeChange;
 
   bool isTapped = false;
@@ -49,15 +50,34 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
       vsync: this,
       duration: kDefaultDuration,
     );
+    animation = controller.drive(
+      Tween<double>(
+        begin: kInitialSize,
+        end: kFinalSize,
+      ),
+    );
+  }
 
-    final CurvedAnimation curve = CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeOutBack,
-      reverseCurve: Curves.easeInBack,
+  void runScale(double initialSize, double finalSize) {
+    animation = controller.drive(
+      Tween<double>(
+        begin: initialSize,
+        end: finalSize,
+      ),
     );
 
-    animation =
-        Tween<double>(begin: kInitialSize, end: kFinalSize).animate(curve);
+    controller.animateWith(
+      SpringSimulation(
+        const SpringDescription(
+          mass: 20,
+          stiffness: 2,
+          damping: 1,
+        ),
+        0,
+        1,
+        0,
+      ),
+    );
   }
 
   @override
@@ -69,21 +89,24 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
     setState(() {
       isTapped = true;
     });
-    controller.forward();
+    runScale(kInitialSize, kFinalSize);
+    // controller.forward();
   }
 
   void onTapUp(TapUpDetails details) {
     setState(() {
       isTapped = false;
     });
-    controller.reverse();
+    runScale(kFinalSize, kInitialSize);
+    // controller.reverse();
   }
 
   void onTapCancel() {
     setState(() {
       isTapped = false;
     });
-    controller.reverse();
+    runScale(kFinalSize, kInitialSize);
+    // controller.reverse();
   }
 
   @override

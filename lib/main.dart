@@ -33,11 +33,11 @@ class Box extends StatefulWidget {
 }
 
 class _BoxState extends State<Box> with TickerProviderStateMixin {
-  bool isTapped = false;
-
   static const double kInitialSize = 100;
   static const double kSizeChange = 10;
   static const double kFinalSize = kInitialSize + kSizeChange;
+
+  bool isTapped = false;
 
   AnimationController controller;
   Animation<double> animation;

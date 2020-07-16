@@ -33,16 +33,25 @@ class SpringCurve extends Curve {
   double transformInternal(double t) => sim.x(t);
 }
 
+/// [Curve] that uses parabolic equations rather than a [SpringDescription].
+///
+/// For a [Curve] that uses a [SpringDescription], see [SpringCurve].
 class SpringCurveParabolic extends Curve {
+  /// Constructor with good default values
   const SpringCurveParabolic({
-    this.a = 0.15,
-    this.w = 19.4,
+    this.amplitude = 0.15,
+    this.wavelength = 19.4,
   });
-  final double a;
-  final double w;
+
+  /// Holds the amplitude of the wave being created
+  final double amplitude;
+
+  /// Holds the wavelength of the wave being created
+  final double wavelength;
 
   @override
   double transformInternal(double t) {
-    return -(pow(e, -t / a) * cos(t * w)) + 1 as double;
+    /// [pow] returns a [num] but [Curve]'s [transformInternal] expects a [double] so must be cast
+    return -(pow(e, -t / amplitude) * cos(t * wavelength)) + 1 as double;
   }
 }

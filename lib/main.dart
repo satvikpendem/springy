@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Basic container
 class Box extends StatefulWidget {
   @override
   _BoxState createState() => _BoxState();
@@ -44,12 +45,13 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
 
   AnimationController controller;
   Animation<double> animation;
+  ReverseAnimation reverseAnimation;
   CurvedAnimation curve;
 
   static SpringCurve springCurve = SpringCurve(
     spring: const SpringDescription(
-      mass: 2,
-      stiffness: 100,
+      mass: 20,
+      stiffness: 1000,
       damping: 1,
     ),
   );
@@ -65,7 +67,11 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
 
     curve = CurvedAnimation(
       parent: controller,
-      curve: springCurve,
+      // curve: springCurve,
+      curve: const SpringCurveParabolic(
+        amplitude: 0.2,
+        wavelength: 57,
+      ),
     );
 
     animation = Tween<double>(
@@ -80,46 +86,44 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void onTapDown(TapDownDetails details) {
+  void runAnimation({bool tapStatus, double initialValue, double finalValue}) {
     setState(() {
-      isTapped = true;
+      isTapped = tapStatus;
 
       animation = Tween<double>(
-        begin: kInitialSize,
-        end: kFinalSize,
+        begin: initialValue,
+        end: finalValue,
       ).animate(curve);
     });
 
-    controller.reset();
-    controller.forward();
+    /// Reset the controller so that the controller thinks it will still need to drive forward
+    controller
+      ..reset()
+      ..forward();
+  }
+
+  void onTapDown(TapDownDetails details) {
+    runAnimation(
+      tapStatus: true,
+      initialValue: kInitialSize,
+      finalValue: kFinalSize,
+    );
   }
 
   void onTapUp(TapUpDetails details) {
-    setState(() {
-      isTapped = false;
-
-      animation = Tween<double>(
-        begin: kFinalSize,
-        end: kInitialSize,
-      ).animate(curve);
-    });
-
-    controller.reset();
-    controller.forward();
+    runAnimation(
+      tapStatus: false,
+      initialValue: kFinalSize,
+      finalValue: kInitialSize,
+    );
   }
 
   void onTapCancel() {
-    setState(() {
-      isTapped = false;
-
-      animation = Tween<double>(
-        begin: kFinalSize,
-        end: kInitialSize,
-      ).animate(curve);
-    });
-
-    controller.reset();
-    controller.forward();
+    runAnimation(
+      tapStatus: false,
+      initialValue: kFinalSize,
+      finalValue: kInitialSize,
+    );
   }
 
   @override

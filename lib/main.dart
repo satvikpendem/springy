@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
+import './util/spring_curve.dart';
+
 void main() {
   WidgetsApp.debugAllowBannerOverride = false;
   runApp(MyApp());
 }
 
-const Duration kDefaultDuration = Duration(milliseconds: 250);
+const Duration kDefaultDuration = Duration(milliseconds: 1250);
 
 class MyApp extends StatelessWidget {
   @override
@@ -35,8 +37,16 @@ class Box extends StatefulWidget {
 
 class _BoxState extends State<Box> with TickerProviderStateMixin {
   static const double kInitialSize = 100;
-  static const double kSizeChange = 200;
+  static const double kSizeChange = 20;
   static const double kFinalSize = kInitialSize + kSizeChange;
+
+  static SpringCurve springCurve = SpringCurve(
+    spring: const SpringDescription(
+      mass: 30,
+      stiffness: 10,
+      damping: 1,
+    ),
+  );
 
   bool isTapped = false;
 
@@ -50,38 +60,24 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
       vsync: this,
       duration: kDefaultDuration,
     );
-    animation = controller.drive(
-      Tween<double>(
-        begin: kInitialSize,
-        end: kFinalSize,
-      ),
-    );
-  }
 
-  void runScale(double initialSize, double finalSize) {
-    animation = controller.drive(
-      Tween<double>(
-        begin: initialSize,
-        end: finalSize,
-      ),
+    final CurvedAnimation curve = CurvedAnimation(
+      parent: controller,
+      curve: springCurve,
     );
 
-    controller.animateWith(
-      SpringSimulation(
-        const SpringDescription(
-          mass: 20,
-          stiffness: 2,
-          damping: 1,
-        ),
-        0,
-        1,
-        0,
-      ),
-    );
+    animation = Tween<double>(
+      begin: kInitialSize,
+      end: kFinalSize,
+    ).animate(curve);
   }
+
+  void runAnimation(bool tapStatus, AnimationController controller) =>
+      tapStatus ? controller.reverse() : controller.forward();
 
   @override
   void dispose() {
+    controller.dispose();
     super.dispose();
   }
 
@@ -89,24 +85,21 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
     setState(() {
       isTapped = true;
     });
-    runScale(kInitialSize, kFinalSize);
-    // controller.forward();
+    controller.forward();
   }
 
   void onTapUp(TapUpDetails details) {
     setState(() {
       isTapped = false;
     });
-    runScale(kFinalSize, kInitialSize);
-    // controller.reverse();
+    controller.reverse();
   }
 
   void onTapCancel() {
     setState(() {
       isTapped = false;
     });
-    runScale(kFinalSize, kInitialSize);
-    // controller.reverse();
+    controller.reverse();
   }
 
   @override
@@ -115,6 +108,12 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
       onTapDown: onTapDown,
       onTapUp: onTapUp,
       onTapCancel: onTapCancel,
+      // onTap: () {
+      //   setState(() {
+      //     isTapped = !isTapped;
+      //     runAnimation(isTapped, controller);
+      //   });
+      // },
       child: AnimatedBuilder(
         animation: animation,
         builder: (_, __) => Container(

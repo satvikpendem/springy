@@ -40,28 +40,30 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
   static const double kSizeChange = 20;
   static const double kFinalSize = kInitialSize + kSizeChange;
 
-  static SpringCurve springCurve = SpringCurve(
-    spring: const SpringDescription(
-      mass: 30,
-      stiffness: 10,
-      damping: 1,
-    ),
-  );
-
   bool isTapped = false;
 
   AnimationController controller;
   Animation<double> animation;
+  CurvedAnimation curve;
+
+  static SpringCurve springCurve = SpringCurve(
+    spring: const SpringDescription(
+      mass: 2,
+      stiffness: 100,
+      damping: 1,
+    ),
+  );
 
   @override
   void initState() {
     super.initState();
+
     controller = AnimationController(
       vsync: this,
       duration: kDefaultDuration,
     );
 
-    final CurvedAnimation curve = CurvedAnimation(
+    curve = CurvedAnimation(
       parent: controller,
       curve: springCurve,
     );
@@ -72,9 +74,6 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
     ).animate(curve);
   }
 
-  void runAnimation(bool tapStatus, AnimationController controller) =>
-      tapStatus ? controller.reverse() : controller.forward();
-
   @override
   void dispose() {
     controller.dispose();
@@ -84,22 +83,43 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
   void onTapDown(TapDownDetails details) {
     setState(() {
       isTapped = true;
+
+      animation = Tween<double>(
+        begin: kInitialSize,
+        end: kFinalSize,
+      ).animate(curve);
     });
+
+    controller.reset();
     controller.forward();
   }
 
   void onTapUp(TapUpDetails details) {
     setState(() {
       isTapped = false;
+
+      animation = Tween<double>(
+        begin: kFinalSize,
+        end: kInitialSize,
+      ).animate(curve);
     });
-    controller.reverse();
+
+    controller.reset();
+    controller.forward();
   }
 
   void onTapCancel() {
     setState(() {
       isTapped = false;
+
+      animation = Tween<double>(
+        begin: kFinalSize,
+        end: kInitialSize,
+      ).animate(curve);
     });
-    controller.reverse();
+
+    controller.reset();
+    controller.forward();
   }
 
   @override
@@ -108,12 +128,6 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
       onTapDown: onTapDown,
       onTapUp: onTapUp,
       onTapCancel: onTapCancel,
-      // onTap: () {
-      //   setState(() {
-      //     isTapped = !isTapped;
-      //     runAnimation(isTapped, controller);
-      //   });
-      // },
       child: AnimatedBuilder(
         animation: animation,
         builder: (_, __) => Container(

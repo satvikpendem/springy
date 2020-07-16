@@ -8,7 +8,7 @@ void main() {
   runApp(MyApp());
 }
 
-const Duration kDefaultDuration = Duration(milliseconds: 1250);
+const Duration kDefaultDuration = Duration(milliseconds: 500);
 
 class MyApp extends StatelessWidget {
   @override
@@ -46,38 +46,34 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
   ReverseAnimation reverseAnimation;
-  CurvedAnimation curve;
+  CurvedAnimation curvedAnimation;
 
-  static SpringCurve springCurve = SpringCurve(
-    spring: const SpringDescription(
-      mass: 20,
-      stiffness: 1000,
-      damping: 1,
-    ),
+  static const SpringCurvePeriodic periodicCurve = SpringCurvePeriodic(
+    amplitude: 0.2,
+    wavelength: 11,
   );
 
   @override
   void initState() {
     super.initState();
 
+    /// Set up the [controller]
     controller = AnimationController(
       vsync: this,
       duration: kDefaultDuration,
     );
 
-    curve = CurvedAnimation(
+    /// Prepare the [curvedAnimation] with the `periodicCurve`
+    curvedAnimation = CurvedAnimation(
       parent: controller,
-      // curve: springCurve,
-      curve: const SpringCurveParabolic(
-        amplitude: 0.2,
-        wavelength: 57,
-      ),
+      curve: periodicCurve,
     );
 
+    /// Use the [curvedAnimation] to create the [animation]
     animation = Tween<double>(
       begin: kInitialSize,
       end: kFinalSize,
-    ).animate(curve);
+    ).animate(curvedAnimation);
   }
 
   @override
@@ -86,14 +82,19 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void runAnimation({bool tapStatus, double initialValue, double finalValue}) {
+  /// Changes the [isTapped] value and changes the [animation] to accept new `begin` and `end` values
+  void runAnimation({
+    bool tapStatus,
+    double initialValue,
+    double finalValue,
+  }) {
     setState(() {
       isTapped = tapStatus;
 
       animation = Tween<double>(
         begin: initialValue,
         end: finalValue,
-      ).animate(curve);
+      ).animate(curvedAnimation);
     });
 
     /// Reset the controller so that the controller thinks it will still need to drive forward
@@ -112,7 +113,7 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
 
   void onTapUp(TapUpDetails details) {
     runAnimation(
-      tapStatus: false,
+      tapStatus: true,
       initialValue: kFinalSize,
       finalValue: kInitialSize,
     );
@@ -120,30 +121,28 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
 
   void onTapCancel() {
     runAnimation(
-      tapStatus: false,
+      tapStatus: true,
       initialValue: kFinalSize,
       finalValue: kInitialSize,
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: onTapDown,
-      onTapUp: onTapUp,
-      onTapCancel: onTapCancel,
-      child: AnimatedBuilder(
-        animation: animation,
-        builder: (_, __) => Container(
-          margin: const EdgeInsets.all(10),
-          width: animation.value,
-          height: animation.value,
-          decoration: BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(10),
+  Widget build(BuildContext context) => GestureDetector(
+        onTapDown: onTapDown,
+        onTapUp: onTapUp,
+        onTapCancel: onTapCancel,
+        child: AnimatedBuilder(
+          animation: animation,
+          builder: (_, __) => Container(
+            margin: const EdgeInsets.all(10),
+            width: animation.value,
+            height: animation.value,
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

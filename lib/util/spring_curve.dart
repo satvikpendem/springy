@@ -36,9 +36,9 @@ class SpringCurve extends Curve {
 /// [Curve] that uses parabolic equations rather than a [SpringDescription].
 ///
 /// For a [Curve] that uses a [SpringDescription], see [SpringCurve].
-class SpringCurveParabolic extends Curve {
+class SpringCurvePeriodic extends Curve {
   /// Constructor with good default values
-  const SpringCurveParabolic({
+  const SpringCurvePeriodic({
     this.amplitude = 0.15,
     this.wavelength = 19.4,
   });
@@ -49,9 +49,8 @@ class SpringCurveParabolic extends Curve {
   /// Holds the wavelength of the wave being created
   final double wavelength;
 
+  /// [pow] returns a [num] but [Curve]'s [transformInternal] expects a [double] so must be cast
   @override
-  double transformInternal(double t) {
-    /// [pow] returns a [num] but [Curve]'s [transformInternal] expects a [double] so must be cast
-    return -(pow(e, -t / amplitude) * cos(t * wavelength)) + 1 as double;
-  }
+  double transformInternal(double t) =>
+      -(pow(e, -t / amplitude) * cos(t * wavelength)) + 1 as double;
 }

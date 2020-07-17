@@ -40,7 +40,7 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
   SpringDescription springDescription = const SpringDescription(
     mass: 1,
     stiffness: 100,
-    damping: 1,
+    damping: 10,
   );
 
   SpringSimulation simulation;
@@ -102,19 +102,46 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final double size = 100 + controller.value * 10;
+    final double scale = 1 + controller.value;
 
     return GestureDetector(
       onTapDown: onTapDown,
       onTapUp: onTapUp,
       onTapCancel: onTapCancel,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          borderRadius: BorderRadius.circular(10),
+      child: Transform(
+        transform: Matrix4.identity()
+          ..scale(
+            scale,
+            scale,
+          ),
+        alignment: Alignment.center,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: const EdgeInsets.all(10),
+          alignment: Alignment.center,
+          child: const Text(
+            'Task 1',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
         ),
+
+        // Container(
+        //   width: size,
+        //   height: size,
+        //   decoration: BoxDecoration(
+        //     color: Colors.blue,
+        //     borderRadius: BorderRadius.circular(10),
+        //   ),
+        // ),
       ),
     );
   }

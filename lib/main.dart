@@ -67,8 +67,8 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
         /// We must `setState` in order to update the animation and also to record the intermediate value.
         /// This will rebuild the whole UI which is not ideal but is usable.
         setState(() {
-          /// The intermediate value is used to figure out where the animation starts and ends
-          /// if we are in the middle of the animation. For example, if the user cancels the [Gesture],
+          /// The intermediate value is used to figure out where the animation will start and end on the next iteration
+          /// if it's stopped in the middle of the animation. For example, if the user cancels the [Gesture],
           /// then we must know where the animation stopped in order to interpolate from the `intermediateValue`
           /// to the new value.
           intermediateValue = controller.value;
@@ -84,25 +84,21 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
     controller.value = 0;
   }
 
-  void onTapUp(TapUpDetails details) {
+  void runAnimation(double start, double end) {
     simulation = SpringSimulation(
       springDescription,
-      intermediateValue,
-      0,
+      start,
+      end,
       0,
     );
     controller.animateWith(simulation);
   }
 
-  void onTapDown(TapDownDetails details) {
-    simulation = SpringSimulation(
-      springDescription,
-      intermediateValue,
-      1,
-      0,
-    );
-    controller.animateWith(simulation);
-  }
+  void onTapUp(TapUpDetails details) => runAnimation(intermediateValue, 0);
+
+  void onTapDown(TapDownDetails details) => runAnimation(intermediateValue, 1);
+
+  void onTapCancel() => runAnimation(intermediateValue, 1);
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +107,7 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
     return GestureDetector(
       onTapDown: onTapDown,
       onTapUp: onTapUp,
+      onTapCancel: onTapCancel,
       child: Container(
         width: size,
         height: size,

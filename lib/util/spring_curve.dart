@@ -35,8 +35,8 @@ class SpringSimulationCurve extends SpringCurve {
 class SpringPeriodicCurve extends SpringCurve {
   /// Constructor with good default values
   SpringPeriodicCurve({
-    this.amplitude = 0.15,
-    this.wavelength = 19.4,
+    this.amplitude = 0.2,
+    this.wavelength = 11,
   });
 
   /// Holds the amplitude of the wave being created

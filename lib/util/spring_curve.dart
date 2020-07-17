@@ -50,6 +50,7 @@ class SpringCurvePeriodic extends Curve {
   final double wavelength;
 
   /// [pow] returns a [num] but [Curve]'s [transformInternal] expects a [double] so must be cast
+  /// Equation is -(e^(-t / amplitude) * cos(t * wavelength)) + 1
   @override
   double transformInternal(double t) =>
       -(pow(e, -t / amplitude) * cos(t * wavelength)) + 1 as double;

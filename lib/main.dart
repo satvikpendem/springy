@@ -30,7 +30,7 @@ class App extends StatelessWidget {
       home: SafeArea(
         child: Scaffold(
           body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               Center(
                 child: SpringSimulationContainer(

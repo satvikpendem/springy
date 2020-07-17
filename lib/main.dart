@@ -36,9 +36,9 @@ class Box extends StatefulWidget {
 }
 
 class _BoxState extends State<Box> with TickerProviderStateMixin {
-  static const double kInitialSize = 100;
-  static const double kSizeChange = 20;
-  static const double kFinalSize = kInitialSize + kSizeChange;
+  static const double kInitialScale = 1;
+  static const double kScaleChange = 1;
+  static const double kFinalScale = kInitialScale + kScaleChange;
 
   bool isTapped = false;
 
@@ -66,8 +66,8 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
 
     /// Use the [curvedAnimation] to create the [animation]
     animation = Tween<double>(
-      begin: kInitialSize,
-      end: kFinalSize,
+      begin: kInitialScale,
+      end: kFinalScale,
     ).animate(curvedAnimation);
   }
 
@@ -101,24 +101,24 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
   void onTapDown(TapDownDetails details) {
     runAnimation(
       tapStatus: true,
-      initialValue: kInitialSize,
-      finalValue: kFinalSize,
+      initialValue: kInitialScale,
+      finalValue: kFinalScale,
     );
   }
 
   void onTapUp(TapUpDetails details) {
     runAnimation(
       tapStatus: true,
-      initialValue: kFinalSize,
-      finalValue: kInitialSize,
+      initialValue: kFinalScale,
+      finalValue: kInitialScale,
     );
   }
 
   void onTapCancel() {
     runAnimation(
       tapStatus: true,
-      initialValue: kFinalSize,
-      finalValue: kInitialSize,
+      initialValue: kFinalScale,
+      finalValue: kInitialScale,
     );
   }
 
@@ -129,13 +129,30 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
         onTapCancel: onTapCancel,
         child: AnimatedBuilder(
           animation: animation,
-          builder: (_, __) => Container(
-            margin: const EdgeInsets.all(10),
-            width: animation.value,
-            height: animation.value,
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(10),
+          builder: (_, __) => Transform(
+            transform: Matrix4.identity()
+              ..scale(
+                animation.value,
+                animation.value,
+              ),
+            alignment: Alignment.center,
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.all(10),
+              alignment: Alignment.center,
+              child: const Text(
+                'Task 1',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
           ),
         ),

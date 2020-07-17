@@ -46,10 +46,7 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
   Animation<double> animation;
   CurvedAnimation curvedAnimation;
 
-  static const SpringCurvePeriodic periodicCurve = SpringCurvePeriodic(
-    amplitude: 0.2,
-    wavelength: 11,
-  );
+  static const SpringCurvePeriodic periodicCurve = SpringCurvePeriodic();
 
   @override
   void initState() {

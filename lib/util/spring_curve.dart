@@ -13,7 +13,7 @@ class SpringCurve extends Curve {
     @required this.spring,
     this.start = 0,
     this.end = 1,
-    this.velocity = 1,
+    this.velocity = 0,
   }) : sim = SpringSimulation(spring, start, end, velocity);
 
   /// The [SpringDescription] used to model the [Curve].

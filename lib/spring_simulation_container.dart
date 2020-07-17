@@ -108,7 +108,7 @@ class _SpringSimulationContainerState extends State<SpringSimulationContainer>
           padding: const EdgeInsets.all(10),
           alignment: Alignment.center,
           child: const Text(
-            'Task 1',
+            'Spring Simulation',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w900,

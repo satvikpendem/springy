@@ -1,3 +1,4 @@
+import 'package:artemis/spring_curve_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
@@ -9,6 +10,7 @@ void main() {
   runApp(App());
 }
 
+/// [SpringDescription] used for [SpringSimulationContainer]
 const SpringDescription springDescription = SpringDescription(
   mass: 1,
   stiffness: 100,
@@ -27,12 +29,18 @@ class App extends StatelessWidget {
       ),
       home: SafeArea(
         child: Scaffold(
-          body: Center(
-            child: SpringSimulationContainer(
-              spring: Spring(
-                description: springDescription,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: SpringSimulationContainer(
+                  spring: Spring(description: springDescription),
+                ),
               ),
-            ),
+              Center(
+                child: SpringCurveContainer(),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-
-import './util/spring_curve.dart';
+import 'package:flutter/physics.dart';
 
 void main() {
   WidgetsApp.debugAllowBannerOverride = false;
   runApp(MyApp());
 }
-
-const Duration kDefaultDuration = Duration(milliseconds: 500);
 
 class MyApp extends StatelessWidget {
   @override
@@ -36,111 +33,92 @@ class Box extends StatefulWidget {
 }
 
 class _BoxState extends State<Box> with TickerProviderStateMixin {
-  static const double kInitialSize = 100;
-  static const double kSizeChange = 20;
-  static const double kFinalSize = kInitialSize + kSizeChange;
-
-  bool isTapped = false;
-
   AnimationController controller;
-  Animation<double> animation;
-  CurvedAnimation curvedAnimation;
 
-  static const SpringCurvePeriodic periodicCurve = SpringCurvePeriodic(
-    amplitude: 0.2,
-    wavelength: 11,
+  double intermediateValue = 0;
+
+  SpringDescription springDescription = const SpringDescription(
+    mass: 1,
+    stiffness: 100,
+    damping: 1,
   );
 
+  SpringSimulation simulation;
   @override
   void initState() {
     super.initState();
+    simulation = SpringSimulation(
+      springDescription,
+      0,
+      1,
+      0,
+    );
 
-    /// Set up the [controller]
     controller = AnimationController(
       vsync: this,
-      duration: kDefaultDuration,
-    );
 
-    /// Prepare the [curvedAnimation] with the `periodicCurve`
-    curvedAnimation = CurvedAnimation(
-      parent: controller,
-      curve: periodicCurve,
-    );
+      /// Set the bounds to be infinite both positively and negatively.
+      /// The defaults are 1 and -1 for `upperBound` and `lowerBound` respectively, so the spring animation
+      /// will not be visible as it generally goes past 1 and -1. If the bounds remain at 1 and -1, therefore,
+      /// the controller will simply stop animating the animated Widget past these bounds.
+      upperBound: double.infinity,
+      lowerBound: double.negativeInfinity,
+    )..addListener(() {
+        /// We must `setState` in order to update the animation and also to record the intermediate value.
+        /// This will rebuild the whole UI which is not ideal but is usable.
+        setState(() {
+          /// The intermediate value is used to figure out where the animation starts and ends
+          /// if we are in the middle of the animation. For example, if the user cancels the [Gesture],
+          /// then we must know where the animation stopped in order to interpolate from the `intermediateValue`
+          /// to the new value.
+          intermediateValue = controller.value;
+        });
+      });
 
-    /// Use the [curvedAnimation] to create the [animation]
-    animation = Tween<double>(
-      begin: kInitialSize,
-      end: kFinalSize,
-    ).animate(curvedAnimation);
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  /// Changes the [isTapped] value and changes the [animation] to accept new `begin` and `end` values
-  void runAnimation({
-    bool tapStatus,
-    double initialValue,
-    double finalValue,
-  }) {
-    setState(() {
-      isTapped = tapStatus;
-
-      animation = Tween<double>(
-        begin: initialValue,
-        end: finalValue,
-      ).animate(curvedAnimation);
-    });
-
-    /// Reset the controller so that the controller thinks it will still need to drive forward
-    controller
-      ..reset()
-      ..forward();
-  }
-
-  void onTapDown(TapDownDetails details) {
-    runAnimation(
-      tapStatus: true,
-      initialValue: kInitialSize,
-      finalValue: kFinalSize,
-    );
+    /// Controller automatically starts at lowerBound, which is negative infinity.
+    /// Therefore, we must set the value to be 0 for the `size` property to render correctly in the [Container]
+    ///
+    /// We also can't cascade setting the controller's value to 0 because the controller is still null
+    /// and we will get an error on the command line, even though it works fine in the UI.
+    // ignore: cascade_invocations
+    controller.value = 0;
   }
 
   void onTapUp(TapUpDetails details) {
-    runAnimation(
-      tapStatus: true,
-      initialValue: kFinalSize,
-      finalValue: kInitialSize,
+    simulation = SpringSimulation(
+      springDescription,
+      intermediateValue,
+      0,
+      0,
     );
+    controller.animateWith(simulation);
   }
 
-  void onTapCancel() {
-    runAnimation(
-      tapStatus: true,
-      initialValue: kFinalSize,
-      finalValue: kInitialSize,
+  void onTapDown(TapDownDetails details) {
+    simulation = SpringSimulation(
+      springDescription,
+      intermediateValue,
+      1,
+      0,
     );
+    controller.animateWith(simulation);
   }
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTapDown: onTapDown,
-        onTapUp: onTapUp,
-        onTapCancel: onTapCancel,
-        child: AnimatedBuilder(
-          animation: animation,
-          builder: (_, __) => Container(
-            margin: const EdgeInsets.all(10),
-            width: animation.value,
-            height: animation.value,
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
+  Widget build(BuildContext context) {
+    final double size = 100 + controller.value * 10;
+
+    return GestureDetector(
+      onTapDown: onTapDown,
+      onTapUp: onTapUp,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.circular(10),
         ),
-      );
+      ),
+    );
+  }
 }

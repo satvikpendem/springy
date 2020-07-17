@@ -44,7 +44,6 @@ class _BoxState extends State<Box> with TickerProviderStateMixin {
 
   AnimationController controller;
   Animation<double> animation;
-  ReverseAnimation reverseAnimation;
   CurvedAnimation curvedAnimation;
 
   static const SpringCurvePeriodic periodicCurve = SpringCurvePeriodic(

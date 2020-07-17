@@ -5,14 +5,21 @@ import 'spring.dart';
 
 /// Container that can use [SpringSimulation]s for [Transform]s
 class SpringSimulationContainer extends StatefulWidget {
-  /// Basic constructor with a [Key]
-  const SpringSimulationContainer({
-    @required this.spring,
-    Key key,
-  }) : super(key: key);
+  /// If the [spring] is not specified, a default one will be made
+  SpringSimulationContainer({
+    this.spring,
+  }) {
+    spring = Spring(
+      description: const SpringDescription(
+        mass: 5,
+        stiffness: 100,
+        damping: 0.5,
+      ),
+    );
+  }
 
   /// The [Spring] to use for the [Transform]s
-  final Spring spring;
+  Spring spring;
 
   @override
   _SpringSimulationContainerState createState() =>

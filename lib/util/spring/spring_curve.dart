@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
-import '../spring.dart';
+import 'spring.dart';
 
 /// [Curve] that has spring-like properties, used mainly for being extended by
 /// [SpringSimulationCurve] and [SpringPeriodicCurve]

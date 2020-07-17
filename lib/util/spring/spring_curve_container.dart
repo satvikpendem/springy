@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'util/spring_curve.dart';
+import 'spring_curve.dart';
 
 const Duration kDefaultDuration = Duration(milliseconds: 500);
 

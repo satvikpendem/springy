@@ -32,16 +32,102 @@ class App extends StatelessWidget {
           body: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Center(
-                child: SpringSimulationContainer(),
-              ),
-              Center(
-                child: SpringCurveContainer(),
-              ),
+              SimulationDetails(),
+              CurveDetails(),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class CurveDetails extends StatelessWidget {
+  const CurveDetails({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Center(
+          child: SpringCurveContainer(),
+        ),
+      ],
+    );
+  }
+}
+
+class SimulationDetails extends StatefulWidget {
+  const SimulationDetails({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  _SimulationDetailsState createState() => _SimulationDetailsState();
+}
+
+class _SimulationDetailsState extends State<SimulationDetails> {
+  double mass = 5, stiffness = 100, damping = 0.5;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Center(
+          child: SpringSimulationContainer(
+            spring: Spring(
+              description: SpringDescription(
+                mass: mass,
+                stiffness: stiffness,
+                damping: damping,
+              ),
+            ),
+          ),
+        ),
+        Column(
+          children: [
+            Slider(
+              label: 'Mass: $mass',
+              min: 1,
+              max: 20,
+              value: mass,
+              onChanged: (double value) => setState(() {
+                mass = value;
+              }),
+              divisions: 19,
+            ),
+            Slider(
+              label: 'Stiffness: $stiffness',
+              min: 1,
+              max: 500,
+              value: stiffness,
+              onChanged: (double value) => setState(() {
+                stiffness = value;
+              }),
+              divisions: 499,
+            ),
+            Slider(
+              label: 'Damping: $damping',
+              min: 0,
+              max: 10,
+              value: damping,
+              onChanged: (double value) => setState(() {
+                damping = value;
+              }),
+              divisions: 20,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

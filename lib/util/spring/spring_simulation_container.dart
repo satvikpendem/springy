@@ -9,7 +9,10 @@ class SpringSimulationContainer extends StatefulWidget {
   SpringSimulationContainer({
     this.spring,
   }) {
-    spring = Spring(
+    if (spring != null) {
+      assert(spring.description.mass > 0, 'Mass must be greater than 0');
+    }
+    spring ??= Spring(
       description: const SpringDescription(
         mass: 5,
         stiffness: 100,

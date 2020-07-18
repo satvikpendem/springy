@@ -13,6 +13,7 @@ class SpringCurveContainer extends StatefulWidget {
     springCurve ??= SpringPeriodicCurve();
   }
 
+  /// The [SpringCurve] to use for the animations in the [Container]
   SpringCurve springCurve;
 
   @override
@@ -31,13 +32,9 @@ class _SpringCurveContainerState extends State<SpringCurveContainer>
   Animation<double> animation;
   CurvedAnimation curvedAnimation;
 
-  static SpringCurve springCurve;
-
   @override
   void initState() {
     super.initState();
-
-    springCurve = widget.springCurve;
 
     /// Set up the [controller]
     controller = AnimationController(
@@ -48,7 +45,7 @@ class _SpringCurveContainerState extends State<SpringCurveContainer>
     /// Prepare the [curvedAnimation] with the `periodicCurve`
     curvedAnimation = CurvedAnimation(
       parent: controller,
-      curve: springCurve,
+      curve: widget.springCurve,
     );
 
     /// Use the [curvedAnimation] to create the [animation]
@@ -72,6 +69,12 @@ class _SpringCurveContainerState extends State<SpringCurveContainer>
   }) {
     setState(() {
       isTapped = tapStatus;
+
+      /// change [curvedAnimation] as the widget may have been rebuilt, so a new `curve` will need to be passed in
+      curvedAnimation = CurvedAnimation(
+        parent: controller,
+        curve: widget.springCurve,
+      );
 
       animation = Tween<double>(
         begin: initialValue,

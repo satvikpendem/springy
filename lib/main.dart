@@ -1,8 +1,9 @@
-import 'package:artemis/util/spring/spring_curve_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 import 'util/spring/spring.dart';
+import 'util/spring/spring_curve.dart';
+import 'util/spring/spring_curve_container.dart';
 import 'util/spring/spring_simulation_container.dart';
 
 void main() {
@@ -17,47 +18,26 @@ const SpringDescription springDescription = SpringDescription(
   damping: 10,
 );
 
-/// Main app to run
+/// App start
 class App extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: SafeArea(
-        child: Scaffold(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              SimulationDetails(),
-              CurveDetails(),
-            ],
+  Widget build(BuildContext context) => MaterialApp(
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: SafeArea(
+          child: Scaffold(
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: const <Widget>[
+                SimulationDetails(),
+                CurveDetails(),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class CurveDetails extends StatelessWidget {
-  const CurveDetails({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Center(
-          child: SpringCurveContainer(),
-        ),
-      ],
-    );
-  }
+      );
 }
 
 class SimulationDetails extends StatefulWidget {
@@ -70,64 +50,177 @@ class SimulationDetails extends StatefulWidget {
 }
 
 class _SimulationDetailsState extends State<SimulationDetails> {
-  double mass = 5, stiffness = 100, damping = 0.5;
+  double mass = 5, stiffness = 50, damping = 0.5;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Center(
-          child: SpringSimulationContainer(
-            spring: Spring(
-              description: SpringDescription(
-                mass: mass,
-                stiffness: stiffness,
-                damping: damping,
-              ),
+  List<Widget> get children => <Widget>[
+        SpringSimulationContainer(
+          spring: Spring(
+            description: SpringDescription(
+              mass: mass,
+              stiffness: stiffness,
+              damping: damping,
             ),
           ),
         ),
         Column(
-          children: [
-            Slider(
-              label: 'Mass: $mass',
-              min: 1,
-              max: 20,
-              value: mass,
-              onChanged: (double value) => setState(() {
-                mass = value;
-              }),
-              divisions: 19,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const Text('Mass'),
+                  Slider(
+                    label: '$mass',
+                    min: 1,
+                    max: 20,
+                    value: mass,
+                    onChanged: (double value) {
+                      setState(() {
+                        mass = value;
+                      });
+                    },
+                    divisions: 19,
+                  ),
+                ],
+              ),
             ),
-            Slider(
-              label: 'Stiffness: $stiffness',
-              min: 1,
-              max: 500,
-              value: stiffness,
-              onChanged: (double value) => setState(() {
-                stiffness = value;
-              }),
-              divisions: 499,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const Text('Stiffness'),
+                  Slider(
+                    label: 'Stiffness: $stiffness',
+                    max: 500,
+                    value: stiffness,
+                    onChanged: (double value) {
+                      setState(() {
+                        stiffness = value;
+                      });
+                    },
+                    divisions: 500,
+                  ),
+                ],
+              ),
             ),
-            Slider(
-              label: 'Damping: $damping',
-              min: 0,
-              max: 10,
-              value: damping,
-              onChanged: (double value) => setState(() {
-                damping = value;
-              }),
-              divisions: 20,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const Text('Damping'),
+                  Slider(
+                    label: 'Damping: $damping',
+                    max: 10,
+                    value: damping,
+                    onChanged: (double value) {
+                      setState(() {
+                        damping = value;
+                      });
+                    },
+                    divisions: 20,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-      ],
-    );
-  }
+      ];
+
+  @override
+  Widget build(BuildContext context) =>
+      MediaQuery.of(context).orientation == Orientation.landscape
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: children,
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: children,
+            );
+}
+
+class CurveDetails extends StatefulWidget {
+  const CurveDetails({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  _CurveDetailsState createState() => _CurveDetailsState();
+}
+
+class _CurveDetailsState extends State<CurveDetails> {
+  double amplitude = 1.2, wavelength = 11;
+
+  List<Widget> get children => <Widget>[
+        SpringCurveContainer(
+          springCurve: SpringPeriodicCurve(
+            amplitude: amplitude,
+            wavelength: wavelength,
+          ),
+        ),
+        Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const Text('Amplitude'),
+                  Slider(
+                    activeColor: Colors.red,
+                    inactiveColor: Colors.red.withOpacity(0.24),
+                    label: 'Amplitude: $amplitude',
+                    min: -10,
+                    max: 10,
+                    value: amplitude,
+                    onChanged: (double value) {
+                      setState(() {
+                        amplitude = value;
+                      });
+                    },
+                    divisions: 100,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const Text('Wavelength'),
+                  Slider(
+                    activeColor: Colors.red,
+                    inactiveColor: Colors.red.withOpacity(0.24),
+                    label: 'Wavelength: $wavelength',
+                    max: 100,
+                    value: wavelength,
+                    onChanged: (double value) {
+                      setState(() {
+                        wavelength = value;
+                      });
+                    },
+                    divisions: 20,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        )
+      ];
+
+  @override
+  Widget build(BuildContext context) =>
+      MediaQuery.of(context).orientation == Orientation.landscape
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: children,
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: children,
+            );
 }

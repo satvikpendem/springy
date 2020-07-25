@@ -65,7 +65,7 @@ class _SimulationDetailsState extends State<SimulationDetails> {
         Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -86,7 +86,7 @@ class _SimulationDetailsState extends State<SimulationDetails> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -106,7 +106,7 @@ class _SimulationDetailsState extends State<SimulationDetails> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -152,7 +152,7 @@ class CurveDetails extends StatefulWidget {
 }
 
 class _CurveDetailsState extends State<CurveDetails> {
-  double amplitude = 1.2, wavelength = 11;
+  double amplitude = 0.2, wavelength = 11;
 
   List<Widget> get children => <Widget>[
         SpringCurveContainer(
@@ -164,7 +164,7 @@ class _CurveDetailsState extends State<CurveDetails> {
         Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -187,7 +187,7 @@ class _CurveDetailsState extends State<CurveDetails> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[

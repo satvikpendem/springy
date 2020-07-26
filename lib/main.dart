@@ -39,18 +39,30 @@ class DragStack extends StatefulWidget {
 class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
   static const double maxSlide = 1000;
 
-  AnimationController dragController;
+  // AnimationController dragController;
+  List<AnimationController> dragControllers;
+  int controllerLength = 2;
 
   @override
   void initState() {
     super.initState();
-    dragController = AnimationController(
-      vsync: this,
-      duration: const Duration(),
+    // dragController = AnimationController(
+    //   vsync: this,
+    //   duration: const Duration(),
+    // );
+    dragControllers = List<AnimationController>.generate(
+      controllerLength,
+      (int index) => AnimationController(
+        vsync: this,
+        duration: const Duration(),
+      ),
     );
   }
 
-  void onVerticalDragUpdate(DragUpdateDetails details) {
+  void onVerticalDragUpdate(
+    DragUpdateDetails details,
+    AnimationController dragController,
+  ) {
     dragController.value += details.primaryDelta / maxSlide;
   }
 
@@ -71,27 +83,54 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
             left: MediaQuery.of(context).size.width,
           ),
         ),
-        AnimatedBuilder(
-          animation: dragController,
-          builder: (BuildContext context, Widget child) => Transform(
-            /// Transform must be first in the widget tree as otherwise the gesture will stay in the same place
-            /// while the child appears to be moving
-            transform: Matrix4.identity()
-              ..translate(
-                0,
-                maxSlide * dragController.value,
-              ),
-            child: GestureDetector(
-              onVerticalDragUpdate: onVerticalDragUpdate,
-              child: SpringScaleTransition(
-                child: const SpringBox(
-                  description: 'Test',
-                ),
-              ),
-            ),
+        ...List<DragContainer>.generate(
+          dragControllers.length,
+          (int index) => DragContainer(
+            dragController: dragControllers[index],
+            maxSlide: maxSlide,
+            onVerticalDragUpdate: onVerticalDragUpdate,
           ),
         )
       ],
+    );
+  }
+}
+
+class DragContainer extends StatelessWidget {
+  const DragContainer({
+    Key key,
+    @required this.dragController,
+    @required this.maxSlide,
+    @required this.onVerticalDragUpdate,
+  }) : super(key: key);
+
+  final AnimationController dragController;
+  final double maxSlide;
+  final Function(DragUpdateDetails details, AnimationController controller)
+      onVerticalDragUpdate;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: dragController,
+      builder: (BuildContext context, Widget child) => Transform(
+        /// Transform must be first in the widget tree as otherwise the gesture will stay in the same place
+        /// while the child appears to be moving
+        transform: Matrix4.identity()
+          ..translate(
+            0,
+            maxSlide * dragController.value,
+          ),
+        child: GestureDetector(
+          onVerticalDragUpdate: (DragUpdateDetails details) =>
+              onVerticalDragUpdate(details, dragController),
+          child: SpringScaleTransition(
+            child: const SpringBox(
+              description: 'Test',
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

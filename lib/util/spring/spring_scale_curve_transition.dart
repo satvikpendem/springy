@@ -5,10 +5,11 @@ import 'spring_curve.dart';
 const Duration kDefaultDuration = Duration(milliseconds: 500);
 
 /// Container that uses a [SpringCurve] for animations
-class SpringCurveContainer extends StatefulWidget {
+class SpringScaleCurveTransition extends StatefulWidget {
   /// Initializes a [SpringPeriodicCurve] by default if no [springCurve] is passed in
-  SpringCurveContainer({
+  SpringScaleCurveTransition({
     this.springCurve,
+    this.child,
   }) {
     springCurve ??= SpringPeriodicCurve();
   }
@@ -16,11 +17,15 @@ class SpringCurveContainer extends StatefulWidget {
   /// The [SpringCurve] to use for the animations in the [Container]
   SpringCurve springCurve;
 
+  /// [Widget] to add the transition for
+  Widget child;
+
   @override
-  _SpringCurveContainerState createState() => _SpringCurveContainerState();
+  _SpringScaleCurveTransitionState createState() =>
+      _SpringScaleCurveTransitionState();
 }
 
-class _SpringCurveContainerState extends State<SpringCurveContainer>
+class _SpringScaleCurveTransitionState extends State<SpringScaleCurveTransition>
     with TickerProviderStateMixin {
   static const double kInitialScale = 1;
   static const double kScaleChange = 1;
@@ -120,24 +125,7 @@ class _SpringCurveContainerState extends State<SpringCurveContainer>
                 animation.value,
               ),
             alignment: Alignment.center,
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: const EdgeInsets.all(10),
-              alignment: Alignment.center,
-              child: const Text(
-                'Spring Curve',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
+            child: widget.child,
           ),
         ),
       );

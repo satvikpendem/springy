@@ -4,19 +4,22 @@ import 'package:flutter/physics.dart';
 import 'spring.dart';
 
 /// Container that can use [SpringSimulation]s for [Transform]s
-class SpringSimulationContainer extends StatefulWidget {
+// ignore: must_be_immutable
+class SpringScaleTransition extends StatefulWidget {
   /// If the [spring] is not specified, a default one will be made
-  SpringSimulationContainer({
+  SpringScaleTransition({
+    Key key,
     this.spring,
-  }) {
+    this.child,
+  }) : super(key: key) {
     if (spring != null) {
       assert(spring.description.mass > 0, 'Mass must be greater than 0');
     }
     spring ??= Spring(
       description: const SpringDescription(
-        mass: 5,
-        stiffness: 100,
-        damping: 0.5,
+        mass: 3,
+        stiffness: 200,
+        damping: 3,
       ),
     );
   }
@@ -24,12 +27,14 @@ class SpringSimulationContainer extends StatefulWidget {
   /// The [Spring] to use for the [Transform]s
   Spring spring;
 
+  /// [Widget] to create the transition for
+  Widget child;
+
   @override
-  _SpringSimulationContainerState createState() =>
-      _SpringSimulationContainerState();
+  _SpringScaleTransitionState createState() => _SpringScaleTransitionState();
 }
 
-class _SpringSimulationContainerState extends State<SpringSimulationContainer>
+class _SpringScaleTransitionState extends State<SpringScaleTransition>
     with TickerProviderStateMixin {
   AnimationController controller;
 
@@ -107,24 +112,7 @@ class _SpringSimulationContainerState extends State<SpringSimulationContainer>
             scale,
           ),
         alignment: Alignment.center,
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          padding: const EdgeInsets.all(10),
-          alignment: Alignment.center,
-          child: const Text(
-            'Spring Simulation',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ),
+        child: widget.child,
       ),
     );
   }

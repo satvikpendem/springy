@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'examples/spring_scale_example.dart';
+import 'util/spring/spring_scale_transition.dart';
+
 void main() {
   WidgetsApp.debugAllowBannerOverride = false;
   runApp(const App());
@@ -18,7 +21,13 @@ class App extends StatelessWidget {
         ),
         home: SafeArea(
           child: Scaffold(
-            body: Container(),
+            body: Center(
+              child: SpringScaleTransition(
+                child: const SpringBox(
+                  description: 'Test',
+                ),
+              ),
+            ),
           ),
         ),
       );

@@ -11,13 +11,6 @@ void main() {
   runApp(const App());
 }
 
-/// [SpringDescription] used for [SpringScaleTransition]
-const SpringDescription springDescription = SpringDescription(
-  mass: 5,
-  stiffness: 100,
-  damping: 10,
-);
-
 /// App start
 class App extends StatelessWidget {
   /// Constructor
@@ -53,7 +46,7 @@ class SimulationDetails extends StatefulWidget {
 }
 
 class _SimulationDetailsState extends State<SimulationDetails> {
-  double mass = 5, stiffness = 50, damping = 0.5;
+  double mass = 3, stiffness = 200, damping = 3;
 
   List<Widget> get children => <Widget>[
         SpringScaleTransition(
@@ -64,23 +57,8 @@ class _SimulationDetailsState extends State<SimulationDetails> {
               damping: damping,
             ),
           ),
-          child: Container(
-            margin: const EdgeInsets.all(10),
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.all(10),
-            alignment: Alignment.center,
-            child: const Text(
-              'Spring Simulation',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
+          child: const SpringBox(
+            description: 'Spring Transition',
           ),
         ),
         Column(
@@ -163,6 +141,44 @@ class _SimulationDetailsState extends State<SimulationDetails> {
             );
 }
 
+class SpringBox extends StatelessWidget {
+  const SpringBox({
+    @required this.description,
+    this.color = Colors.blue,
+    this.descriptionColor = Colors.white,
+    Key key,
+  }) : super(key: key);
+
+  /// Description for the Box
+  final String description;
+
+  /// [Color] for the Box
+  final Color color;
+
+  /// [Color] of the [description]
+  final Color descriptionColor;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.all(10),
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.all(10),
+        alignment: Alignment.center,
+        child: Text(
+          description,
+          style: TextStyle(
+            color: descriptionColor,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      );
+}
+
 class CurveDetails extends StatefulWidget {
   const CurveDetails({
     Key key,
@@ -181,23 +197,9 @@ class _CurveDetailsState extends State<CurveDetails> {
             amplitude: amplitude,
             wavelength: wavelength,
           ),
-          child: Container(
-            margin: const EdgeInsets.all(10),
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.all(10),
-            alignment: Alignment.center,
-            child: const Text(
-              'Spring Curve',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
+          child: const SpringBox(
+            description: 'Spring Curve',
+            color: Colors.red,
           ),
         ),
         Column(

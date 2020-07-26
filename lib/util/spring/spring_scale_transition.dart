@@ -8,9 +8,10 @@ import 'spring.dart';
 class SpringScaleTransition extends StatefulWidget {
   /// If the [spring] is not specified, a default one will be made
   SpringScaleTransition({
-    Key key,
+    @required this.child,
     this.spring,
-    this.child,
+    this.maxScaleFactor = 0.25,
+    Key key,
   }) : super(key: key) {
     if (spring != null) {
       assert(spring.description.mass > 0, 'Mass must be greater than 0');
@@ -29,6 +30,9 @@ class SpringScaleTransition extends StatefulWidget {
 
   /// [Widget] to create the transition for
   Widget child;
+
+  /// The maximum scale that the [child] should grow
+  double maxScaleFactor;
 
   @override
   _SpringScaleTransitionState createState() => _SpringScaleTransitionState();
@@ -99,7 +103,7 @@ class _SpringScaleTransitionState extends State<SpringScaleTransition>
 
   @override
   Widget build(BuildContext context) {
-    final double scale = 1 + controller.value;
+    final double scale = 1 + (controller.value * widget.maxScaleFactor);
 
     return GestureDetector(
       onTapDown: onTapDown,

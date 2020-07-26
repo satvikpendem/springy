@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 
 import 'spring_curve.dart';
 
+/// Default duration for [Animation]s
 const Duration kDefaultDuration = Duration(milliseconds: 500);
 
 /// Container that uses a [SpringCurve] for animations
+// ignore: must_be_immutable
 class SpringScaleCurveTransition extends StatefulWidget {
   /// Initializes a [SpringPeriodicCurve] by default if no [springCurve] is passed in
   SpringScaleCurveTransition({
     this.springCurve,
     this.child,
-  }) {
+    Key key,
+  }) : super(key: key) {
     springCurve ??= SpringPeriodicCurve();
   }
 

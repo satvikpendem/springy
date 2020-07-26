@@ -56,47 +56,42 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: dragController,
-      builder: (context, child) {
-        final double slide = maxSlide * dragController.value;
-
-        print(slide);
-        return Stack(
-          alignment: Alignment.topCenter,
-          children: <Widget>[
-            Padding(
-              /// Stack will size itself around the first non-positioned child, if it has one.
-              /// Therefore, we need padding at least up to the height of the viewport,
-              /// otherwise the elements won't show up
-              ///
-              /// https://stackoverflow.com/questions/50155840/can-should-stack-expand-its-size-to-its-positioned-children
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height,
-                right: MediaQuery.of(context).size.width,
-                left: MediaQuery.of(context).size.width,
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: <Widget>[
+        Padding(
+          /// Stack will size itself around the first non-positioned child, if it has one.
+          /// Therefore, we need padding at least up to the height of the viewport,
+          /// otherwise the elements won't show up
+          ///
+          /// https://stackoverflow.com/questions/50155840/can-should-stack-expand-its-size-to-its-positioned-children
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).size.height,
+            right: MediaQuery.of(context).size.width,
+            left: MediaQuery.of(context).size.width,
+          ),
+        ),
+        AnimatedBuilder(
+          animation: dragController,
+          builder: (BuildContext context, Widget child) => Transform(
+            /// Transform must be first in the widget tree as otherwise the gesture will stay in the same place
+            /// while the child appears to be moving
+            transform: Matrix4.identity()
+              ..translate(
+                0,
+                maxSlide * dragController.value,
+              ),
+            child: GestureDetector(
+              onVerticalDragUpdate: onVerticalDragUpdate,
+              child: SpringScaleTransition(
+                child: const SpringBox(
+                  description: 'Test',
+                ),
               ),
             ),
-            Transform(
-              /// Transform must be first in the widget tree as otherwise the gesture will stay in the same place
-              /// while the child appears to be moving
-              transform: Matrix4.identity()
-                ..translate(
-                  0,
-                  slide,
-                ),
-              child: GestureDetector(
-                onVerticalDragUpdate: onVerticalDragUpdate,
-                child: SpringScaleTransition(
-                  child: const SpringBox(
-                    description: 'Test',
-                  ),
-                ),
-              ),
-            )
-          ],
-        );
-      },
+          ),
+        )
+      ],
     );
   }
 }

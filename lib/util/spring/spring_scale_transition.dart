@@ -43,9 +43,9 @@ class SpringScaleTransition extends StatefulWidget {
   /// The maximum scale that the [child] should grow
   final double maxScaleFactor;
 
-  void Function(DragStartDetails _) onDragStart;
-  void Function(DragUpdateDetails _) onDragUpdate;
-  void Function(DragEndDetails _) onDragEnd;
+  void Function(DragStartDetails details) onDragStart;
+  void Function(DragUpdateDetails details) onDragUpdate;
+  void Function(DragEndDetails details) onDragEnd;
   void Function() onDragCancel;
 
   @override

@@ -39,17 +39,13 @@ class DragStack extends StatefulWidget {
 }
 
 class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
-  // AnimationController dragController;
   List<AnimationController> dragControllers;
-  int controllerLength = 2;
+  List<String> dragKeys;
+  static const int controllerLength = 2;
 
   @override
   void initState() {
     super.initState();
-    // dragController = AnimationController(
-    //   vsync: this,
-    //   duration: const Duration(),
-    // );
     dragControllers = List<AnimationController>.generate(
       controllerLength,
       (int index) => AnimationController(
@@ -57,14 +53,48 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
         duration: const Duration(),
       ),
     );
+    dragKeys = List<String>.generate(
+        controllerLength, (int index) => index.toString());
+  }
+
+  void onVerticalDragStart(
+    DragStartDetails details,
+    AnimationController dragController,
+    int index,
+  ) {
+    setState(() {
+      final AnimationController draggingElement =
+          dragControllers.removeAt(index);
+      dragControllers.add(draggingElement);
+
+      // final String draggingKey = dragKeys.removeAt(index);
+      // dragKeys.insert(0, draggingKey);
+    });
+
+    print(index);
+    print(dragControllers);
   }
 
   void onVerticalDragUpdate(
     DragUpdateDetails details,
     AnimationController dragController,
   ) {
+    // TODO(satvikpendem): Don't make function depend on the constant maxSlide value, `kMaxSlide`
     dragController.value += details.primaryDelta / kMaxSlide;
   }
+
+  List<DragContainer> buildList() => List<DragContainer>.generate(
+        dragControllers.length,
+        (int index) => DragContainer(
+          // key: Key(['a', 'b', 'c'][index]),
+          index: index,
+          dragController: dragControllers[index],
+          maxSlide: kMaxSlide,
+          onVerticalDragUpdate: onVerticalDragUpdate,
+          onVerticalDragStart: onVerticalDragStart,
+          // color: <Color>[Colors.blue, Colors.red, Colors.green][index],
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -86,14 +116,7 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
         // SpringBox(
         //   description: "Test",
         // ),
-        ...List<DragContainer>.generate(
-          dragControllers.length,
-          (int index) => DragContainer(
-            dragController: dragControllers[index],
-            maxSlide: kMaxSlide,
-            onVerticalDragUpdate: onVerticalDragUpdate,
-          ),
-        )
+        ...buildList()
       ],
     );
   }
@@ -105,12 +128,28 @@ class DragContainer extends StatelessWidget {
     @required this.dragController,
     @required this.maxSlide,
     @required this.onVerticalDragUpdate,
+    @required this.onVerticalDragStart,
+    @required this.index,
+    this.color,
   }) : super(key: key);
 
   final AnimationController dragController;
   final double maxSlide;
-  final Function(DragUpdateDetails details, AnimationController controller)
-      onVerticalDragUpdate;
+
+  final void Function(
+    DragUpdateDetails details,
+    AnimationController controller,
+  ) onVerticalDragUpdate;
+
+  final void Function(
+    DragStartDetails details,
+    AnimationController controller,
+    int index,
+  ) onVerticalDragStart;
+
+  final int index;
+
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -126,10 +165,13 @@ class DragContainer extends StatelessWidget {
             maxSlide * dragController.value,
           ),
         child: SpringScaleTransition(
+          onDragStart: (DragStartDetails details) =>
+              onVerticalDragStart(details, dragController, index),
           onDragUpdate: (DragUpdateDetails details) =>
               onVerticalDragUpdate(details, dragController),
-          child: const SpringBox(
+          child: SpringBox(
             description: 'Test',
+            color: color ?? Colors.blue,
           ),
         ),
       ),

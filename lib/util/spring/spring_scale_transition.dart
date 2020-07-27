@@ -18,9 +18,9 @@ class SpringScaleTransition extends StatefulWidget {
     }
     spring ??= Spring(
       description: const SpringDescription(
-        mass: 3,
-        stiffness: 200,
-        damping: 3,
+        mass: 3.0,
+        stiffness: 200.0,
+        damping: 3.0,
       ),
     );
   }

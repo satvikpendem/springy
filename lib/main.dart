@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 
+import 'examples/spring_scale_example.dart';
 import 'examples/spring_scale_example.dart';
 import 'util/spring/spring_scale_transition.dart';
 
@@ -7,6 +9,8 @@ void main() {
   WidgetsApp.debugAllowBannerOverride = false;
   runApp(const App());
 }
+
+const double kMaxSlide = 1000;
 
 /// App start
 class App extends StatelessWidget {
@@ -37,8 +41,6 @@ class DragStack extends StatefulWidget {
 }
 
 class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
-  static const double maxSlide = 1000;
-
   // AnimationController dragController;
   List<AnimationController> dragControllers;
   int controllerLength = 2;
@@ -63,7 +65,7 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
     DragUpdateDetails details,
     AnimationController dragController,
   ) {
-    dragController.value += details.primaryDelta / maxSlide;
+    dragController.value += details.primaryDelta / kMaxSlide;
   }
 
   @override
@@ -83,11 +85,14 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
             left: MediaQuery.of(context).size.width,
           ),
         ),
+        // SpringBox(
+        //   description: "Test",
+        // ),
         ...List<DragContainer>.generate(
           dragControllers.length,
           (int index) => DragContainer(
             dragController: dragControllers[index],
-            maxSlide: maxSlide,
+            maxSlide: kMaxSlide,
             onVerticalDragUpdate: onVerticalDragUpdate,
           ),
         )
@@ -118,7 +123,8 @@ class DragContainer extends StatelessWidget {
         /// while the child appears to be moving
         transform: Matrix4.identity()
           ..translate(
-            0,
+            /// [Transform]s' `x` must always be a `double` as it's normally `dynamic`
+            0.0,
             maxSlide * dragController.value,
           ),
         child: GestureDetector(

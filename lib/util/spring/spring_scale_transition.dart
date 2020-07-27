@@ -11,6 +11,10 @@ class SpringScaleTransition extends StatefulWidget {
     @required this.child,
     this.spring,
     this.maxScaleFactor = 0.25,
+    this.onDragStart,
+    this.onDragUpdate,
+    this.onDragEnd,
+    this.onDragCancel,
     Key key,
   }) : super(key: key) {
     if (spring != null) {
@@ -18,21 +22,31 @@ class SpringScaleTransition extends StatefulWidget {
     }
     spring ??= Spring(
       description: const SpringDescription(
-        mass: 3.0,
-        stiffness: 200.0,
-        damping: 3.0,
+        mass: 3,
+        stiffness: 200,
+        damping: 3,
       ),
     );
+
+    onDragStart ??= (DragStartDetails _) {};
+    onDragUpdate ??= (DragUpdateDetails _) {};
+    onDragEnd ??= (DragEndDetails _) {};
+    onDragCancel ??= () {};
   }
 
-  /// The [Spring] to use for the [Transform]s
+  /// The [Spring] to use for the [Transform]s. Cannot be final as we use null coalescing assignment in the constructor.
   Spring spring;
 
   /// [Widget] to create the transition for
-  Widget child;
+  final Widget child;
 
   /// The maximum scale that the [child] should grow
-  double maxScaleFactor;
+  final double maxScaleFactor;
+
+  void Function(DragStartDetails _) onDragStart;
+  void Function(DragUpdateDetails _) onDragUpdate;
+  void Function(DragEndDetails _) onDragEnd;
+  void Function() onDragCancel;
 
   @override
   _SpringScaleTransitionState createState() => _SpringScaleTransitionState();
@@ -93,22 +107,35 @@ class _SpringScaleTransitionState extends State<SpringScaleTransition>
     controller.animateWith(simulation);
   }
 
-  void onTapUp(TapUpDetails details) =>
-      runAnimation(intermediateValue, widget.spring.start);
+  // void onTapUp(TapUpDetails details) =>
+  //     runAnimation(intermediateValue, widget.spring.start);
 
-  void onTapDown(TapDownDetails details) =>
-      runAnimation(intermediateValue, widget.spring.end);
+  // void onTapDown(TapDownDetails details) =>
+  //     runAnimation(intermediateValue, widget.spring.end);
 
-  void onTapCancel() => runAnimation(intermediateValue, widget.spring.end);
+  // void onTapCancel() => runAnimation(intermediateValue, widget.spring.end);
 
   @override
   Widget build(BuildContext context) {
     final double scale = 1 + (controller.value * widget.maxScaleFactor);
 
     return GestureDetector(
-      onTapDown: onTapDown,
-      onTapUp: onTapUp,
-      onTapCancel: onTapCancel,
+      // onTapDown: onTapDown,
+      // onTapUp: onTapUp,
+      // onTapCancel: onTapCancel,
+      onVerticalDragStart: (DragStartDetails details) {
+        widget.onDragStart(details);
+        runAnimation(intermediateValue, widget.spring.end);
+      },
+      onVerticalDragUpdate: widget.onDragUpdate,
+      onVerticalDragEnd: (DragEndDetails details) {
+        widget.onDragEnd(details);
+        runAnimation(intermediateValue, widget.spring.start);
+      },
+      onVerticalDragCancel: () {
+        widget.onDragCancel();
+        runAnimation(intermediateValue, widget.spring.start);
+      },
       child: Transform(
         transform: Matrix4.identity()
           ..scale(

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 
-import 'examples/spring_scale_example.dart';
 import 'examples/spring_scale_example.dart';
 import 'util/spring/spring_scale_transition.dart';
 
@@ -127,13 +125,11 @@ class DragContainer extends StatelessWidget {
             0.0,
             maxSlide * dragController.value,
           ),
-        child: GestureDetector(
-          onVerticalDragUpdate: (DragUpdateDetails details) =>
+        child: SpringScaleTransition(
+          onDragUpdate: (DragUpdateDetails details) =>
               onVerticalDragUpdate(details, dragController),
-          child: SpringScaleTransition(
-            child: const SpringBox(
-              description: 'Test',
-            ),
+          child: const SpringBox(
+            description: 'Test',
           ),
         ),
       ),

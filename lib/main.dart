@@ -40,7 +40,8 @@ class DragStack extends StatefulWidget {
 
 class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
   List<AnimationController> dragControllers;
-  List<String> dragKeys;
+  List<DragContainer> containers;
+  // List<String> dragKeys;
   static const int controllerLength = 2;
 
   @override
@@ -53,8 +54,23 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
         duration: const Duration(),
       ),
     );
-    dragKeys = List<String>.generate(
-        controllerLength, (int index) => index.toString());
+    // dragKeys = List<String>.generate(
+    //     controllerLength, (int index) => index.toString());
+    containers = List<DragContainer>.generate(
+      dragControllers.length,
+      (int index) {
+        // print(index);
+        return DragContainer(
+          // key: Key(['a', 'b', 'c', 'd', 'e', 'f'][index]),
+          index: index,
+          dragController: dragControllers[index],
+          maxSlide: kMaxSlide,
+          onVerticalDragUpdate: onVerticalDragUpdate,
+          onVerticalDragStart: onVerticalDragStart,
+        );
+      },
+    );
+    print(containers.map((e) => e.index));
   }
 
   void onVerticalDragStart(
@@ -63,38 +79,47 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
     int index,
   ) {
     setState(() {
-      final AnimationController draggingElement =
+      final AnimationController draggingController =
           dragControllers.removeAt(index);
-      dragControllers.add(draggingElement);
+      dragControllers.add(draggingController);
 
-      // final String draggingKey = dragKeys.removeAt(index);
-      // dragKeys.insert(0, draggingKey);
+      print(dragControllers);
+
+      // final DragContainer draggingElement = containers.removeAt(index);
+      // containers.add(draggingElement);
+
+      print(containers.map((DragContainer e) => e.index));
     });
 
-    print(index);
-    print(dragControllers);
+    // print(index);
+    // print(dragControllers);
   }
 
   void onVerticalDragUpdate(
     DragUpdateDetails details,
     AnimationController dragController,
   ) {
+    // print(dragController);
     // TODO(satvikpendem): Don't make function depend on the constant maxSlide value, `kMaxSlide`
     dragController.value += details.primaryDelta / kMaxSlide;
   }
 
-  List<DragContainer> buildList() => List<DragContainer>.generate(
-        dragControllers.length,
-        (int index) => DragContainer(
-          // key: Key(['a', 'b', 'c'][index]),
-          index: index,
-          dragController: dragControllers[index],
-          maxSlide: kMaxSlide,
-          onVerticalDragUpdate: onVerticalDragUpdate,
-          onVerticalDragStart: onVerticalDragStart,
-          // color: <Color>[Colors.blue, Colors.red, Colors.green][index],
-        ),
-      );
+  // List<DragContainer> buildList() {
+  //   return List<DragContainer>.generate(
+  //     dragControllers.length,
+  //     (int index) {
+  //       // print(index);
+  //       return DragContainer(
+  //         // key: Key(['a', 'b', 'c', 'd', 'e', 'f'][index]),
+  //         index: index,
+  //         dragController: dragControllers[index],
+  //         maxSlide: kMaxSlide,
+  //         onVerticalDragUpdate: onVerticalDragUpdate,
+  //         onVerticalDragStart: onVerticalDragStart,
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +141,7 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
         // SpringBox(
         //   description: "Test",
         // ),
-        ...buildList()
+        ...containers,
       ],
     );
   }
@@ -124,14 +149,18 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
 
 class DragContainer extends StatelessWidget {
   const DragContainer({
-    Key key,
     @required this.dragController,
     @required this.maxSlide,
-    @required this.onVerticalDragUpdate,
     @required this.onVerticalDragStart,
+    @required this.onVerticalDragUpdate,
+    // @required this.onVerticalDragEnd,
+    // @required this.onVerticalDragCancel,
     @required this.index,
     this.color,
-  }) : super(key: key);
+    this.key,
+  });
+
+  final Key key;
 
   final AnimationController dragController;
   final double maxSlide;
@@ -147,6 +176,10 @@ class DragContainer extends StatelessWidget {
     int index,
   ) onVerticalDragStart;
 
+  // final void Function(DragEndDetails details) onVerticalDragEnd;
+
+  // final void Function() onVerticalDragCancel;
+
   final int index;
 
   final Color color;
@@ -154,6 +187,7 @@ class DragContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
+      // key: key,
       animation: dragController,
       builder: (BuildContext context, Widget child) => Transform(
         /// Transform must be first in the widget tree as otherwise the gesture will stay in the same place
@@ -165,12 +199,14 @@ class DragContainer extends StatelessWidget {
             maxSlide * dragController.value,
           ),
         child: SpringScaleTransition(
+          maxScaleFactor: 0.1,
+          // key: key,
           onDragStart: (DragStartDetails details) =>
               onVerticalDragStart(details, dragController, index),
           onDragUpdate: (DragUpdateDetails details) =>
               onVerticalDragUpdate(details, dragController),
           child: SpringBox(
-            description: 'Test',
+            description: '$index',
             color: color ?? Colors.blue,
           ),
         ),

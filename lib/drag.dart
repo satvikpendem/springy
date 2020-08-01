@@ -38,7 +38,7 @@ class BoxData {
 }
 
 class _DragStackState extends State<DragStack> {
-  List<BoxData> boxes = [
+  List<BoxData> boxes = <BoxData>[
     BoxData(Colors.red),
     BoxData(Colors.blue),
     BoxData(Colors.green)
@@ -57,23 +57,30 @@ class _DragStackState extends State<DragStack> {
           ),
         ),
         ...boxes.map((x) {
-          var box = x;
+          final BoxData box = x;
           return Positioned(
-              key: ValueKey(x),
-              top: x.y,
-              child: GestureDetector(
-                  onVerticalDragStart: (details) => {
-                        setState(() {
-                          boxes.remove(x);
-                          boxes.add(x);
-                        })
-                      },
-                  onVerticalDragUpdate: (DragUpdateDetails details) {
-                    setState(() {
-                      box.y += details.primaryDelta;
-                    });
-                  },
-                  child: Container(color: x.color, width: 100, height: 100)));
+            key: ValueKey<BoxData>(x),
+            top: x.y,
+            child: GestureDetector(
+              onVerticalDragStart: (DragStartDetails details) => {
+                setState(() {
+                  boxes
+                    ..remove(x)
+                    ..add(x);
+                })
+              },
+              onVerticalDragUpdate: (DragUpdateDetails details) {
+                setState(() {
+                  box.y += details.primaryDelta;
+                });
+              },
+              child: Container(
+                color: x.color,
+                width: 100,
+                height: 100,
+              ),
+            ),
+          );
         }),
       ],
     );

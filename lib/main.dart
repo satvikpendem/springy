@@ -36,14 +36,16 @@ class DragStack extends StatefulWidget {
 
 class BoxData {
   Color color;
-  BoxData(this.color);
+  double height;
+
+  BoxData({this.color, this.height});
 }
 
 class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
   List<BoxData> boxes = <BoxData>[
-    BoxData(Colors.red),
-    BoxData(Colors.blue),
-    BoxData(Colors.green),
+    BoxData(color: Colors.red, height: 0),
+    BoxData(color: Colors.blue, height: 100),
+    BoxData(color: Colors.green, height: 200),
   ];
 
   List<AnimationController> controllers;
@@ -51,14 +53,13 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    controllers = boxes
-        .map(
-          (BoxData e) => AnimationController(
-            duration: const Duration(),
-            vsync: this,
-          ),
-        )
-        .toList();
+    controllers = List<AnimationController>.generate(
+      boxes.length,
+      (int index) => AnimationController(
+        duration: const Duration(),
+        vsync: this,
+      )..value = boxes[index].height / kMaxSlide,
+    );
   }
 
   @override

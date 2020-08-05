@@ -146,6 +146,8 @@ class SpringBox extends StatelessWidget {
     @required this.description,
     this.color = Colors.blue,
     this.descriptionColor = Colors.white,
+    this.width = 100,
+    this.height = 100,
     Key key,
   }) : super(key: key);
 
@@ -158,11 +160,17 @@ class SpringBox extends StatelessWidget {
   /// [Color] of the [description]
   final Color descriptionColor;
 
+  /// Width of the Box
+  final double width;
+
+  /// Height of the Box
+  final double height;
+
   @override
   Widget build(BuildContext context) => Container(
         margin: const EdgeInsets.all(10),
-        width: 100,
-        height: 100,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(10),

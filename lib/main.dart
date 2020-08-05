@@ -43,8 +43,8 @@ class BoxData {
 
 class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
   List<BoxData> boxes = <BoxData>[
-    BoxData(color: Colors.red, height: 0),
-    BoxData(color: Colors.blue, height: 100),
+    BoxData(color: Colors.red, height: 100),
+    BoxData(color: Colors.blue, height: 300),
     BoxData(color: Colors.green, height: 200),
   ];
 
@@ -58,7 +58,15 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
       (int index) => AnimationController(
         duration: const Duration(),
         vsync: this,
-      )..value = boxes[index].height / kMaxSlide,
+      )..value =
+
+          /// Set the [AnimationController] initial value to be the sum of all
+          /// of the previous boxes' height
+          boxes.sublist(0, index).fold<double>(
+                  0,
+                  (double previousValue, BoxData element) =>
+                      previousValue + element.height) /
+              kMaxSlide,
     );
   }
 
@@ -79,6 +87,7 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
           (int index) {
             final BoxData box = boxes[index];
             final AnimationController controller = controllers[index];
+            final double value = controller.value * kMaxSlide;
 
             return AnimatedBuilder(
               key: ValueKey<BoxData>(box),
@@ -87,7 +96,7 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
                 return Transform(
                   transform: Matrix4.translationValues(
                     0,
-                    controller.value * kMaxSlide,
+                    value,
                     0,
                   ),
                   child: SpringScaleTransition(
@@ -106,10 +115,29 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
                       setState(() {
                         controllers[index].value +=
                             details.primaryDelta / kMaxSlide;
+
+                        final double previousHeight = boxes
+                                // TODO(satvikpendem): sublist is wrong here, must be on a position list
+                                .sublist(0, index)
+                                .fold<double>(
+                                    0,
+                                    (double previousValue, BoxData element) =>
+                                        previousValue + element.height) +
+                            (box.height / 2);
+
+                        if (value >= 150) {
+                          controllers[0].value =
+                              controllers[0].value - (box.height / kMaxSlide);
+                        } else {
+                          controllers[0].value =
+                              controllers[0].value + (box.height / kMaxSlide);
+                        }
                       });
                     },
                     child: SpringBox(
-                      description: 'Box',
+                      description:
+                          'Cont: ${controller.value.toStringAsFixed(3)}\nHeight: ${box.height}\nPos: ${value.round()}\ni: $index',
+                      height: box.height,
                       color: box.color ?? Colors.blue,
                     ),
                   ),

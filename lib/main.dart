@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 
 import 'examples/spring_scale_example.dart';
 import 'util/spring/spring_scale_transition.dart';
 
 const double kMaxSlide = 1000;
+const SpringDescription springDescription = const SpringDescription(
+  mass: 3,
+  stiffness: 200,
+  damping: 3,
+);
 
 void main() {
   WidgetsApp.debugAllowBannerOverride = false;
@@ -37,15 +43,16 @@ class DragStack extends StatefulWidget {
 class BoxData {
   Color color;
   double height;
+  int index;
 
-  BoxData({this.color, this.height});
+  BoxData({this.color, this.height, this.index});
 }
 
 class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
   List<BoxData> boxes = <BoxData>[
-    BoxData(color: Colors.red, height: 100),
-    BoxData(color: Colors.blue, height: 300),
-    BoxData(color: Colors.green, height: 200),
+    BoxData(color: Colors.red, height: 100, index: 0),
+    BoxData(color: Colors.blue, height: 300, index: 0),
+    BoxData(color: Colors.green, height: 200, index: 0),
   ];
 
   List<AnimationController> controllers;
@@ -56,8 +63,10 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
     controllers = List<AnimationController>.generate(
       boxes.length,
       (int index) => AnimationController(
-        duration: const Duration(),
+        duration: const Duration(milliseconds: 500),
         vsync: this,
+        // upperBound: double.infinity,
+        // lowerBound: double.negativeInfinity,
       )..value =
 
           /// Set the [AnimationController] initial value to be the sum of all
@@ -116,21 +125,43 @@ class _DragStackState extends State<DragStack> with TickerProviderStateMixin {
                         controllers[index].value +=
                             details.primaryDelta / kMaxSlide;
 
-                        final double previousHeight = boxes
-                                // TODO(satvikpendem): sublist is wrong here, must be on a position list
-                                .sublist(0, index)
-                                .fold<double>(
-                                    0,
-                                    (double previousValue, BoxData element) =>
-                                        previousValue + element.height) +
-                            (box.height / 2);
+                        // final List<BoxData> indices = <BoxData>[...boxes]..sort(
+                        //     (BoxData a, BoxData b) =>
+                        //         a.index.compareTo(b.index));
+
+                        // print(indices);
+
+                        // final double previousHeight = boxes
+                        //         // TODO(satvikpendem): sublist is wrong here, must be on a position list
+                        //         .sublist(0, index)
+                        //         .fold<double>(
+                        //             0,
+                        //             (double previousValue, BoxData element) =>
+                        //                 previousValue + element.height) +
+                        //     (box.height / 2);
 
                         if (value >= 150) {
-                          controllers[0].value =
-                              controllers[0].value - (box.height / kMaxSlide);
+                          // final initialValue = controllers[0].value;
+                          // controllers[0].animateWith(
+                          //   SpringSimulation(
+                          //     springDescription,
+                          //     initialValue,
+                          //     0,
+                          //     0,
+                          //   ),
+                          // );
+                          controllers[0].animateTo(0);
                         } else {
-                          controllers[0].value =
-                              controllers[0].value + (box.height / kMaxSlide);
+                          // final endValue = controllers[0].value;
+                          // controllers[0].animateWith(
+                          //   SpringSimulation(
+                          //     springDescription,
+                          //     box.height / kMaxSlide,
+                          //     endValue,
+                          //     0,
+                          //   ),
+                          // );
+                          controllers[0].animateTo(0.1);
                         }
                       });
                     },

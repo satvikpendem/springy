@@ -96,9 +96,11 @@ class _SpringScaleTransitionState extends State<SpringScaleTransition>
 
     /// Controller automatically starts at lowerBound, which is negative
     /// infinity. Therefore, we must set the value to be 0 for the [Transform]s
-    /// to render correctly in the [Container] / / We also can't cascade setting
-    /// the controller's value to 0 because the controller is still null and we
-    /// will get an error on the command line, even if it works fine in the UI.
+    /// to render correctly in the [Container].
+    ///
+    /// We also can't cascade setting the controller's value to 0 because the
+    /// controller is still null and we will get an error on the command line,
+    /// even if it works fine in the UI.
     // ignore: cascade_invocations
     controller.value = 0;
   }

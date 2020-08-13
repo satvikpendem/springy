@@ -9,31 +9,22 @@ class SpringScaleTransition extends StatefulWidget {
   /// If the [spring] is not specified, a default one will be made
   SpringScaleTransition({
     @required this.child,
-    this.spring,
+    Spring spring,
     this.maxScaleFactor = 0.25,
-    this.onDragStart,
-    this.onDragUpdate,
-    this.onDragEnd,
-    this.onDragCancel,
+    void Function(DragStartDetails) onDragStart,
+    void Function(DragUpdateDetails) onDragUpdate,
+    void Function(DragEndDetails) onDragEnd,
+    void Function() onDragCancel,
     Key key,
-  }) : super(key: key) {
-    if (spring != null) {
-      assert(spring.description.mass > 0, 'Mass must be greater than 0');
-    }
-    spring ??= Spring(
-      description: const SpringDescription(
-        mass: 3,
-        stiffness: 200,
-        damping: 3,
-      ),
-    );
+  })  : spring = spring ?? Spring(),
+        assert(spring.description.mass > 0, 'Mass must be greater than 0'),
 
-    /// If Drag GestureDetectorCallbacks are not specified, defaults are made
-    onDragStart ??= (DragStartDetails _) {};
-    onDragUpdate ??= (DragUpdateDetails _) {};
-    onDragEnd ??= (DragEndDetails _) {};
-    onDragCancel ??= () {};
-  }
+        /// If Drag GestureDetectorCallbacks are not specified, defaults are made
+        onDragStart = onDragStart ?? ((DragStartDetails _) {}),
+        onDragUpdate = onDragUpdate ?? ((DragUpdateDetails _) {}),
+        onDragEnd = onDragEnd ?? ((DragEndDetails _) {}),
+        onDragCancel = onDragCancel ?? (() {}),
+        super(key: key);
 
   /// The [Spring] to use for the [Transform]s. Cannot be final as we use null
   /// coalescing assignment in the constructor.
@@ -147,7 +138,7 @@ class _SpringScaleTransitionState extends State<SpringScaleTransition>
         runAnimation(intermediateValue, widget.spring.start);
       },
       child: Transform(
-        transform: Matrix4.identity()..scale(scale),
+        transform: Matrix4.identity()..translate(scale),
         alignment: Alignment.center,
         child: widget.child,
       ),

@@ -1,9 +1,5 @@
-import 'package:artemis/util/spring/spring_scale_transition.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter/physics.dart';
 
-// import 'examples/spring_scale_example.dart';
-// import 'util/spring/spring_scale_transition.dart';
 import 'examples/spring_scale_example.dart';
 import 'util/spring/spring_translation_transition.dart';
 

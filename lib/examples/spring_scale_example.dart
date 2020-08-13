@@ -51,7 +51,7 @@ class _SimulationDetailsState extends State<SimulationDetails> {
   List<Widget> get children => <Widget>[
         SpringScaleTransition(
           spring: Spring(
-            description: SpringDescription(
+            springDescription: SpringDescription(
               mass: mass,
               stiffness: stiffness,
               damping: damping,

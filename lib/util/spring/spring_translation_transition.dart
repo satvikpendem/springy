@@ -97,6 +97,12 @@ class _SpringTranslationTransitionState
     scaleController.value = 0;
   }
 
+  @override
+  void dispose() {
+    scaleController.dispose();
+    super.dispose();
+  }
+
   void runAnimation(double start, double end) {
     simulation = SpringSimulation(
       widget.spring.description,

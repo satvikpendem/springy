@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 
 import 'examples/spring_scale_example.dart';
-import 'util/spring/spring_scale_hook.dart';
+import 'util/spring/spring_translation_transition.dart';
 
 part 'main.g.dart';
 
@@ -14,14 +14,14 @@ void main() {
 
 /// Root
 @hwidget
-Widget app() => MaterialApp(
+Widget app() => const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const SafeArea(
+      home: SafeArea(
         child: Scaffold(
           body: Center(
-            // child: SpringTranslationTransition(
             // child: SpringScaleTransition(
-            child: SpringScaleHook(
+            child: SpringTranslationTransition(
+              toY: 100,
               child: SpringBox(
                 description: 'Box',
               ),

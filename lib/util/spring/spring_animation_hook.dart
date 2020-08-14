@@ -7,12 +7,13 @@ import 'spring.dart';
 class SpringAnimationController {
   final AnimationController controller;
   final void Function(double start, double end) run;
+  final double intermediateValue;
 
-  SpringAnimationController(this.controller, this.run);
+  SpringAnimationController(this.controller, this.run, this.intermediateValue);
 }
 
 /// Hook for creating [Spring] animations that handle initializing the controller, disposing it, and running animations
-SpringAnimationController useSpringAnimationControllerClass({Spring spring}) =>
+SpringAnimationController useSpringAnimationControllerClass([Spring spring]) =>
     use(_SpringAnimationHook(spring ?? Spring()));
 
 class _SpringAnimationHook extends Hook<SpringAnimationController> {
@@ -83,7 +84,7 @@ class _SpringAnimationHookState
 
   @override
   SpringAnimationController build(BuildContext context) =>
-      SpringAnimationController(controller, runAnimation);
+      SpringAnimationController(controller, runAnimation, intermediateValue);
 }
 
 class Example extends HookWidget {
@@ -110,20 +111,14 @@ SpringAnimationController useSpringAnimationControllerFunction(
     /// Widget past these bounds.
     upperBound: double.infinity,
     lowerBound: double.negativeInfinity,
-  )
-    ..addListener(() {
+  )..addListener(() {
       /// The intermediate value is used to figure out where the animation
       /// will start and end on the next iteration if it's stopped in the
       /// middle of the animation. For example, if the user cancels the
       /// [Gesture], then we must know where the animation stopped in order
       /// to interpolate from the `intermediateValue` to the new value.
       intermediateValue.value = controller.value;
-    })
-
-    /// Controller automatically starts at lowerBound, which is negative
-    /// infinity. Therefore, we must set the value to be 0 for the [Transform]s
-    /// to render correctly in the [Container].
-    ..value = 0;
+    });
 
   void runAnimation(double start, double end) => controller.animateWith(
         SpringSimulation(
@@ -134,5 +129,9 @@ SpringAnimationController useSpringAnimationControllerFunction(
         ),
       );
 
-  return SpringAnimationController(controller, runAnimation);
+  return SpringAnimationController(
+    controller,
+    runAnimation,
+    intermediateValue.value,
+  );
 }

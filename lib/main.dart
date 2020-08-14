@@ -1,8 +1,7 @@
-import 'package:artemis/util/spring/spring_scale_transition.dart';
 import 'package:flutter/material.dart';
 
 import 'examples/spring_scale_example.dart';
-import 'util/spring/spring_translation_transition.dart';
+import 'util/spring/spring_scale_hook.dart';
 
 // const double kMaxSlide = 1000;
 // const SpringDescription springDescription = const SpringDescription(
@@ -29,7 +28,8 @@ class App extends StatelessWidget {
           child: Scaffold(
             body: Center(
               // child: SpringTranslationTransition(
-              child: SpringScaleTransition(
+              // child: SpringScaleTransition(
+              child: SpringScaleTransitionHook(
                 child: const SpringBox(
                   description: 'Box',
                 ),

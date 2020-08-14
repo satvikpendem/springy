@@ -12,7 +12,7 @@ class SpringAnimationController {
 }
 
 /// Hook for creating [Spring] animations that handle initializing the controller, disposing it, and running animations
-SpringAnimationController useSpringAnimationController({Spring spring}) =>
+SpringAnimationController useSpringAnimationControllerClass({Spring spring}) =>
     use(_SpringAnimationHook(spring ?? Spring()));
 
 class _SpringAnimationHook extends Hook<SpringAnimationController> {
@@ -86,11 +86,53 @@ class _SpringAnimationHookState
       SpringAnimationController(controller, runAnimation);
 }
 
-class Example extends StatelessWidget {
+class Example extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final SpringAnimationController springAnimation =
-        useSpringAnimationController();
+        useSpringAnimationControllerClass();
     return Container();
   }
+}
+
+SpringAnimationController useSpringAnimationControllerFunction(
+    [Spring spring]) {
+  ValueNotifier<double> intermediateValue = useState<double>(0);
+  AnimationController controller;
+  final Spring _spring = spring ?? Spring();
+
+  controller = useAnimationController(
+    /// Set the bounds to be infinite both positively and negatively.
+    /// The defaults are 1 and -1 for `upperBound` and `lowerBound`
+    /// respectively, so the spring animation / will not be visible as it
+    /// generally goes past 1 and -1. If the bounds remain at 1 and -1,
+    /// therefore, the controller will simply stop animating the animated
+    /// Widget past these bounds.
+    upperBound: double.infinity,
+    lowerBound: double.negativeInfinity,
+  )
+    ..addListener(() {
+      /// The intermediate value is used to figure out where the animation
+      /// will start and end on the next iteration if it's stopped in the
+      /// middle of the animation. For example, if the user cancels the
+      /// [Gesture], then we must know where the animation stopped in order
+      /// to interpolate from the `intermediateValue` to the new value.
+      intermediateValue.value = controller.value;
+    })
+
+    /// Controller automatically starts at lowerBound, which is negative
+    /// infinity. Therefore, we must set the value to be 0 for the [Transform]s
+    /// to render correctly in the [Container].
+    ..value = 0;
+
+  void runAnimation(double start, double end) => controller.animateWith(
+        SpringSimulation(
+          _spring.description,
+          start,
+          end,
+          _spring.velocity,
+        ),
+      );
+
+  return SpringAnimationController(controller, runAnimation);
 }

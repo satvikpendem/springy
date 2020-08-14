@@ -15,12 +15,12 @@ class Spring {
   /// If using with [SpringCurve], [Curve]s expect that the values be between 0 and 1, so [start] and [end] should also be 0 to 1.
   /// [velocity] can be changed if wanted, but generally 0 works as springs start with no velocity normally.
   Spring({
-    SpringDescription springDescription,
+    SpringDescription description,
     this.start = 0,
     this.end = 1,
     this.velocity = 0,
-  }) : description = springDescription ?? kDefaultSpringDescription {
-    simulation = SpringSimulation(description, start, end, velocity);
+  }) : description = description ?? kDefaultSpringDescription {
+    simulation = SpringSimulation(this.description, start, end, velocity);
   }
 
   /// The [SpringDescription] to use for the [SpringSimulation]

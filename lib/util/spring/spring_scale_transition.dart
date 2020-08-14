@@ -18,13 +18,13 @@ class SpringScaleTransition extends StatefulWidget {
     Key key,
   }) : super(key: key) {
     this.spring = spring ?? Spring();
-    assert(spring.description.mass > 0, 'Mass must be greater than 0');
+    assert(this.spring.description.mass > 0, 'Mass must be greater than 0');
 
     /// If Drag GestureDetectorCallbacks are not specified, defaults are made
-    onDragStart ??= (DragStartDetails _) {};
-    onDragUpdate ??= (DragUpdateDetails _) {};
-    onDragEnd ??= (DragEndDetails _) {};
-    onDragCancel ??= () {};
+    this.onDragStart = onDragStart ?? (DragStartDetails _) {};
+    this.onDragUpdate = onDragUpdate ?? (DragUpdateDetails _) {};
+    this.onDragEnd = onDragEnd ?? (DragEndDetails _) {};
+    this.onDragCancel = onDragCancel ?? () {};
   }
 
   /// The [Spring] to use for the [Transform]s. Cannot be final as we use null
@@ -72,6 +72,11 @@ class _SpringScaleTransitionState extends State<SpringScaleTransition>
       /// Widget past these bounds.
       upperBound: double.infinity,
       lowerBound: double.negativeInfinity,
+
+      /// Controller automatically starts at lowerBound, which is negative
+      /// infinity. Therefore, we must set the value to be 0 for the [Transform]s
+      /// to render correctly in the [Container].
+      value: 0,
     )..addListener(() {
         /// We must `setState` in order to update the animation
         /// and also to record the intermediate value.
@@ -85,16 +90,6 @@ class _SpringScaleTransitionState extends State<SpringScaleTransition>
           intermediateValue = controller.value;
         });
       });
-
-    /// Controller automatically starts at lowerBound, which is negative
-    /// infinity. Therefore, we must set the value to be 0 for the [Transform]s
-    /// to render correctly in the [Container].
-    ///
-    /// We also can't cascade setting the controller's value to 0 because the
-    /// controller is still null and we will get an error on the command line,
-    /// even if it works fine in the UI.
-    // ignore: cascade_invocations
-    controller.value = 0;
   }
 
   void runAnimation(double start, double end) {

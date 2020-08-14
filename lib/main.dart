@@ -16,13 +16,13 @@ void main() {
 @hwidget
 Widget app() => MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SafeArea(
+      home: const SafeArea(
         child: Scaffold(
           body: Center(
             // child: SpringTranslationTransition(
             // child: SpringScaleTransition(
-            child: SpringScaleTransitionHook(
-              child: const SpringBox(
+            child: SpringScaleHook(
+              child: SpringBox(
                 description: 'Box',
               ),
             ),

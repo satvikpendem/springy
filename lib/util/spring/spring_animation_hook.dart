@@ -97,7 +97,7 @@ class Example extends HookWidget {
 
 SpringAnimationController useSpringAnimationControllerFunction(
     [Spring spring]) {
-  ValueNotifier<double> intermediateValue = useState<double>(0);
+  final ValueNotifier<double> intermediateValue = useState<double>(0);
   AnimationController controller;
   final Spring _spring = spring ?? Spring();
 

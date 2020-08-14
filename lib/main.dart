@@ -1,3 +1,4 @@
+import 'package:artemis/util/spring/spring_scale_transition.dart';
 import 'package:flutter/material.dart';
 
 import 'examples/spring_scale_example.dart';
@@ -27,7 +28,8 @@ class App extends StatelessWidget {
         home: SafeArea(
           child: Scaffold(
             body: Center(
-              child: SpringTranslationTransition(
+              // child: SpringTranslationTransition(
+              child: SpringScaleTransition(
                 child: const SpringBox(
                   description: 'Box',
                 ),

@@ -16,15 +16,16 @@ class SpringScaleTransition extends StatefulWidget {
     void Function(DragEndDetails) onDragEnd,
     void Function() onDragCancel,
     Key key,
-  })  : spring = spring ?? Spring(),
-        assert(spring.description.mass > 0, 'Mass must be greater than 0'),
+  }) : super(key: key) {
+    this.spring = spring ?? Spring();
+    assert(spring.description.mass > 0, 'Mass must be greater than 0');
 
-        /// If Drag GestureDetectorCallbacks are not specified, defaults are made
-        onDragStart = onDragStart ?? ((DragStartDetails _) {}),
-        onDragUpdate = onDragUpdate ?? ((DragUpdateDetails _) {}),
-        onDragEnd = onDragEnd ?? ((DragEndDetails _) {}),
-        onDragCancel = onDragCancel ?? (() {}),
-        super(key: key);
+    /// If Drag GestureDetectorCallbacks are not specified, defaults are made
+    onDragStart ??= (DragStartDetails _) {};
+    onDragUpdate ??= (DragUpdateDetails _) {};
+    onDragEnd ??= (DragEndDetails _) {};
+    onDragCancel ??= () {};
+  }
 
   /// The [Spring] to use for the [Transform]s. Cannot be final as we use null
   /// coalescing assignment in the constructor.
@@ -138,7 +139,7 @@ class _SpringScaleTransitionState extends State<SpringScaleTransition>
         runAnimation(intermediateValue, widget.spring.start);
       },
       child: Transform(
-        transform: Matrix4.identity()..translate(scale),
+        transform: Matrix4.identity()..scale(scale),
         alignment: Alignment.center,
         child: widget.child,
       ),

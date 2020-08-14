@@ -1,44 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 
 import 'examples/spring_scale_example.dart';
 import 'util/spring/spring_scale_hook.dart';
 
-// const double kMaxSlide = 1000;
-// const SpringDescription springDescription = const SpringDescription(
-//   mass: 3,
-//   stiffness: 200,
-//   damping: 3,
-// );
+part 'main.g.dart';
 
 void main() {
   WidgetsApp.debugAllowBannerOverride = false;
   runApp(const App());
 }
 
-class App extends StatelessWidget {
-  const App({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: SafeArea(
-          child: Scaffold(
-            body: Center(
-              // child: SpringTranslationTransition(
-              // child: SpringScaleTransition(
-              child: SpringScaleTransitionHook(
-                child: const SpringBox(
-                  description: 'Box',
-                ),
+/// Root
+@hwidget
+Widget app() => MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SafeArea(
+        child: Scaffold(
+          body: Center(
+            // child: SpringTranslationTransition(
+            // child: SpringScaleTransition(
+            child: SpringScaleTransitionHook(
+              child: const SpringBox(
+                description: 'Box',
               ),
             ),
           ),
         ),
-      );
-}
+      ),
+    );
+
+// class App extends StatelessWidget {
+//   const App({Key key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) => MaterialApp(
+//         theme: ThemeData(
+//           primarySwatch: Colors.blue,
+//           visualDensity: VisualDensity.adaptivePlatformDensity,
+//         ),
+//         home: SafeArea(
+//           child: Scaffold(
+//             body: Center(
+//               // child: SpringTranslationTransition(
+//               // child: SpringScaleTransition(
+//               child: SpringScaleTransitionHook(
+//                 child: const SpringBox(
+//                   description: 'Box',
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       );
+// }
 
 // class DragStack extends StatefulWidget {
 //   DragStack({Key key}) : super(key: key);

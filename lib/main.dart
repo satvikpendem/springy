@@ -25,16 +25,24 @@ Widget app() {
           child: Column(
             children: <Widget>[
               SpringTranslationTransition(
-                toY: y.value,
+                toY: 100,
                 child: const SpringBox(
                   description: 'Box',
                 ),
               ),
-              MaterialButton(
-                onPressed: () =>
-                    y.value = y.value == 100 ? y.value = 200 : y.value = 100,
-                child: const Text('Hello'),
-              )
+              // STT(
+              //   toX: y.value,
+              //   child: const SpringBox(
+              //     description: 'Box',
+              //   ),
+              // ),
+              // MaterialButton(
+              //   onPressed: () {
+              //     y.value = y.value == 100 ? y.value = 200 : y.value = 100;
+              //     print(y.value);
+              //   },
+              //   child: const Text('Hello'),
+              // )
             ],
           ),
         ),

@@ -14,22 +14,34 @@ void main() {
 
 /// Root
 @hwidget
-Widget app() => const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SafeArea(
-        child: Scaffold(
-          body: Center(
-            // child: SpringScaleTransition(
-            child: SpringTranslationTransition(
-              toY: 100,
-              child: SpringBox(
-                description: 'Box',
+Widget app() {
+  final ValueNotifier<double> y = useState<double>(100);
+
+  return MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            children: <Widget>[
+              SpringTranslationTransition(
+                toY: y.value,
+                child: const SpringBox(
+                  description: 'Box',
+                ),
               ),
-            ),
+              MaterialButton(
+                onPressed: () =>
+                    y.value = y.value == 100 ? y.value = 200 : y.value = 100,
+                child: const Text('Hello'),
+              )
+            ],
           ),
         ),
       ),
-    );
+    ),
+  );
+}
 
 // class App extends StatelessWidget {
 //   const App({Key key}) : super(key: key);

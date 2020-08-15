@@ -39,6 +39,10 @@ Widget springTranslationTransition({
   /// from progressing, causing the visual perception of jankiness
   final double xTranslation = toX * (xAnimation.controller.value);
   final double yTranslation = toY * (yAnimation.controller.value);
+  // final ValueNotifier<double> xTranslation =
+  //     useState<double>(toX * (xAnimation.controller.value));
+  // final ValueNotifier<double> yTranslation =
+  //     useState<double>(toY * (xAnimation.controller.value));
 
   return GestureDetector(
     onVerticalDragStart: (DragStartDetails details) {

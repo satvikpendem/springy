@@ -30,6 +30,9 @@ SpringAnimation useSpringAnimation([Spring spring]) {
     /// `lowerBound` respectively, so the spring animation will not be visible as it generally goes past 1 and -1.
     /// If the bounds remain at 1 and -1, / therefore, the controller will simply stop animating the animated / Widget
     /// past these bounds.
+    ///
+    /// We could also use [AnimationController.unbounded] but [useAnimationController] is a hook which doesn't have
+    /// that constructor.
     upperBound: double.infinity,
     lowerBound: double.negativeInfinity,
   )..addListener(() {

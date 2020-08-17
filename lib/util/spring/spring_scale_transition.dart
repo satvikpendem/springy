@@ -38,6 +38,12 @@ Widget springScaleTransition({
   final double scale = 1 + (springAnimation.controller.value * maxScaleFactor);
 
   return GestureDetector(
+    onTapDown: (_) =>
+        springAnimation.run(springAnimation.intermediateValue, _spring.end),
+    onTapUp: (_) =>
+        springAnimation.run(springAnimation.intermediateValue, _spring.start),
+    onTapCancel: () =>
+        springAnimation.run(springAnimation.intermediateValue, _spring.start),
     onVerticalDragStart: (DragStartDetails details) {
       _onDragStart(details);
       springAnimation.run(springAnimation.intermediateValue, _spring.end);

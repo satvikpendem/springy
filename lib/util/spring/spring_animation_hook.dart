@@ -111,7 +111,7 @@ class _SpringAnimationHookState
   @override
   void didUpdateHook(_SpringAnimationHook oldHook) {
     if (oldHook.value != hook.value) {
-      run(oldHook.value, hook.value);
+      run(hook.controller.value, hook.value);
     }
   }
 

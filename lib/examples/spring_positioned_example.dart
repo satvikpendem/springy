@@ -51,7 +51,6 @@ Widget boxes({int numBoxes, SpringAnimation springAnimator}) {
         numBoxes,
         (int index) => Positioned(
           top: (springAnimator.controller.value * 100) + (index * (100 + 10)),
-          // right: MediaQuery.of(useContext()).size.width - 100 / 2,
           left: (MediaQuery.of(useContext()).size.width - 100) / 2,
           child: SpringScaleTransition(
             child: SpringBox(

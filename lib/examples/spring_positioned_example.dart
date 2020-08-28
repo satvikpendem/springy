@@ -56,6 +56,7 @@ Widget box(BuildContext context,
 
   final child = useMemoized(
     () => SpringScaleTransition(
+      finalValue: 5,
       child: SpringBox(
         description: 'Hello',
         color: <Color>[

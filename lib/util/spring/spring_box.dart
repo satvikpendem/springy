@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// [Container] for testing [Animation]s
 class SpringBox extends StatelessWidget {
   const SpringBox({
-    @required this.description,
+    this.description = 'Box',
     this.color = Colors.blue,
     this.descriptionColor = Colors.white,
     this.width = 100,

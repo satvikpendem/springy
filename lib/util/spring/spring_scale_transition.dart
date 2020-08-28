@@ -9,19 +9,68 @@ import 'spring_animation_hook.dart';
 part 'spring_scale_transition.g.dart';
 
 /// Container that can use [SpringSimulation]s for [Transform]s
+///
+/// [spring]: An optional [Spring] can be passed in
+/// [initialValue]: Value to start the scale at, generally set to 1
+/// [finalValue]: Value to finish scaling at. This can be less than the [initialValue] if desired
+/// [child]: The child to scale
+///
+/// The gesture functions can be passed in for whichever gestures are desired to have the scale property on
 @hwidget
 Widget springScaleTransition({
   @required Widget child,
   Spring spring,
   double initialValue = 1,
-  double maxScaleFactor = 0.25,
+  double finalValue = 1.25,
+  void Function(TapDownDetails) onTapDown,
+  void Function(TapUpDetails) onTapUp,
+  void Function() onTapCancel,
   void Function(DragStartDetails) onDragStart,
   void Function(DragUpdateDetails) onDragUpdate,
   void Function(DragEndDetails) onDragEnd,
   void Function() onDragCancel,
 }) {
-  final Spring _spring = spring ?? Spring();
-  assert(_spring.description.mass > 0, 'Mass must be greater than 0');
+  /// Initialize [spring] to a default [Spring] if not provided
+  spring ??= Spring();
+  assert(spring.description.mass > 0, 'Mass must be greater than 0');
+
+  /// The scale value to keep track of, starting at [initialValue]
+  final ValueNotifier<double> scale = useState<double>(initialValue);
+
+  return GestureDetector(
+    onTapDown: (TapDownDetails details) {
+      (onTapDown ??= (TapDownDetails _) {})(details);
+      scale.value = finalValue;
+    },
+    onTapUp: (TapUpDetails details) {
+      (onTapUp ??= (TapUpDetails _) {})(details);
+      scale.value = initialValue;
+    },
+    onTapCancel: () {
+      (onTapCancel ??= () {})();
+      scale.value = initialValue;
+    },
+    onVerticalDragStart: (DragStartDetails details) {
+      (onDragStart ?? (DragStartDetails _) {})(details);
+      scale.value = finalValue;
+    },
+    onVerticalDragUpdate: (DragUpdateDetails details) {
+      (onDragUpdate ?? (DragUpdateDetails _) {})(details);
+      scale.value = finalValue;
+    },
+    onVerticalDragEnd: (DragEndDetails details) {
+      (onDragEnd ?? (DragEndDetails _) {})(details);
+      scale.value = initialValue;
+    },
+    onVerticalDragCancel: () {
+      (onDragCancel ?? () {})();
+      scale.value = initialValue;
+    },
+    child: _SpringScale(
+      scale: scale.value,
+      child: child,
+    ),
+  );
 
   /// If Drag GestureDetectorCallbacks are not specified, defaults are made
   // TODO(satvikpendem): Remove duplicate functions
@@ -33,57 +82,57 @@ Widget springScaleTransition({
   //     onDragEnd ?? (DragEndDetails _) {};
   // final void Function() _onDragCancel = onDragCancel ?? () {};
 
-  // final SpringAnimator springAnimation = useSpringAnimator();
-  final AnimationController animation = useSpringAnimation(initialValue);
+  // final AnimationController animationController = useSpringAnimation(value);
 
-  final ValueNotifier<bool> isActive = useState<bool>(false);
+  // /// Scale must be at least 1, but clamping will stop the controller.value
+  // /// from progressing, causing the visual perception of jankiness
+  // // final double scale = 1 + (springAnimation.controller.value * maxScaleFactor);
 
-  /// Initial scale value is just 1
-  final ValueNotifier<double> scale = useState<double>(initialValue);
+  // return GestureDetector(
+  //   onTapDown: (_) {
+  //     // return springAnimation.run(springAnimation.intermediateValue, _spring.end);
+  //     isActive.value = true;
+  //   },
+  //   onTapUp: (_) {
+  //     // return springAnimation.run(springAnimation.intermediateValue, _spring.start);
+  //     isActive.value = false;
+  //   },
+  //   onTapCancel: () {
+  //     // return springAnimation.run(springAnimation.intermediateValue, _spring.start);
+  //     isActive.value = false;
+  //   },
+  //   // onVerticalDragStart: (DragStartDetails details) {
+  //   //   _onDragStart(details);
+  //   //   springAnimation.run(springAnimation.intermediateValue, _spring.end);
+  //   // },
+  //   // onVerticalDragUpdate: _onDragUpdate,
+  //   // onVerticalDragEnd: (DragEndDetails details) {
+  //   //   _onDragEnd(details);
+  //   //   springAnimation.run(springAnimation.intermediateValue, _spring.start);
+  //   // },
+  //   // onVerticalDragCancel: () {
+  //   //   _onDragCancel();
+  //   //   springAnimation.run(springAnimation.intermediateValue, _spring.start);
+  //   // },
+  //   child: Transform(
+  //     transform: Matrix4.identity()..scale(animationController.value),
+  //     alignment: Alignment.center,
+  //     child: child,
+  //   ),
+  // );
+}
 
-  useEffect(() {
-    if (isActive.value) {
-      scale.value = initialValue + (animation.value * maxScaleFactor);
-    } else {
-      scale.value = initialValue;
-    }
-    return;
-  }, <bool>[isActive.value]);
+@hwidget
+Widget _springScale({
+  @required double scale,
+  @required Widget child,
+  Alignment alignment = Alignment.center,
+}) {
+  final AnimationController animationController = useSpringAnimation(scale);
 
-  /// Scale must be at least 1, but clamping will stop the controller.value
-  /// from progressing, causing the visual perception of jankiness
-  // final double scale = 1 + (springAnimation.controller.value * maxScaleFactor);
-
-  return GestureDetector(
-    onTapDown: (_) {
-      // return springAnimation.run(springAnimation.intermediateValue, _spring.end);
-      isActive.value = true;
-    },
-    onTapUp: (_) {
-      // return springAnimation.run(springAnimation.intermediateValue, _spring.start);
-      isActive.value = false;
-    },
-    onTapCancel: () {
-      // return springAnimation.run(springAnimation.intermediateValue, _spring.start);
-      isActive.value = false;
-    },
-    // onVerticalDragStart: (DragStartDetails details) {
-    //   _onDragStart(details);
-    //   springAnimation.run(springAnimation.intermediateValue, _spring.end);
-    // },
-    // onVerticalDragUpdate: _onDragUpdate,
-    // onVerticalDragEnd: (DragEndDetails details) {
-    //   _onDragEnd(details);
-    //   springAnimation.run(springAnimation.intermediateValue, _spring.start);
-    // },
-    // onVerticalDragCancel: () {
-    //   _onDragCancel();
-    //   springAnimation.run(springAnimation.intermediateValue, _spring.start);
-    // },
-    child: Transform(
-      transform: Matrix4.identity()..scale(scale.value),
-      alignment: Alignment.center,
-      child: child,
-    ),
+  return Transform(
+    transform: Matrix4.identity()..scale(animationController.value),
+    alignment: alignment,
+    child: child,
   );
 }

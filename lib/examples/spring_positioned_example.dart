@@ -10,56 +10,67 @@ part 'spring_positioned_example.g.dart';
 
 void main(List<String> args) => runApp(const App());
 
+/// App
 @hwidget
 Widget app() {
-  final SpringAnimation springAnimator = useSpringAnimation();
-  final ValueNotifier<bool> isDown = useState<bool>(false);
-  final ValueNotifier<int> numBoxes = useState<int>(3);
+  final ValueNotifier<bool> isDown = useState(false);
+  final ValueNotifier<List<double>> targets = useState<List<double>>(
+    <double>[
+      100,
+      200,
+      300,
+    ],
+  );
+
+  useEffect(() {
+    targets.value =
+        isDown.value ? <double>[520, 410, 300] : <double>[0, 110, 220];
+    return;
+  }, <bool>[isDown.value]);
 
   return MaterialApp(
     home: SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (!isDown.value) {
-              springAnimator.run(0, 1);
-              isDown.value = true;
-            } else {
-              springAnimator.run(1, 0);
-              isDown.value = false;
-            }
-          },
+          onPressed: () => isDown.value = !isDown.value,
         ),
-        body: Boxes(numBoxes: numBoxes.value, springAnimator: springAnimator),
+        body: Stack(
+          children: List<Box>.generate(
+            targets.value.length,
+            (int index) => Box(
+              index: index,
+              target: targets.value.elementAt(index),
+            ),
+          ),
+        ),
       ),
     ),
   );
 }
 
+/// Box
 @hwidget
-Widget boxes({int numBoxes, SpringAnimation springAnimator}) {
-  return SingleChildScrollView(
-    child: Stack(children: <Widget>[
-      Padding(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(useContext()).size.height * 2,
-          right: MediaQuery.of(useContext()).size.width,
-          left: MediaQuery.of(useContext()).size.width,
-        ),
+Widget box(BuildContext context,
+    {@required int index, @required double target}) {
+  final AnimationController animationController =
+      useSpringAnimationClass(target);
+
+  final SpringScaleTransition child = useMemoized(
+    () => SpringScaleTransition(
+      child: SpringBox(
+        description: 'Hello',
+        color: <Color>[
+          Colors.blue,
+          Colors.red,
+          Colors.green,
+        ].elementAt(index),
       ),
-      ...List<Widget>.generate(
-        numBoxes,
-        (int index) => Positioned(
-          top: (springAnimator.controller.value * 100) + (index * (100 + 10)),
-          left: (MediaQuery.of(useContext()).size.width - 100) / 2,
-          child: SpringScaleTransition(
-            child: SpringBox(
-              description: 'Hello',
-              color: [Colors.blue, Colors.red, Colors.green].elementAt(index),
-            ),
-          ),
-        ),
-      ),
-    ]),
+    ),
+  );
+
+  return Positioned(
+    top: animationController.value,
+    left: (MediaQuery.of(context).size.width - 100) / 2,
+    child: child,
   );
 }

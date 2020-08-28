@@ -59,7 +59,10 @@ SpringAnimation useSpringAnimation([Spring spring]) {
 }
 
 AnimationController useSpringAnimationClass(double value, {Spring spring}) {
+  /// Initialize default spring if none is passed in
   spring ??= Spring();
+
+  /// [AnimationController] to pass into the inner hook implementation
   final AnimationController controller = useAnimationController(
     lowerBound: double.negativeInfinity,
     upperBound: double.infinity,
@@ -96,9 +99,12 @@ class _SpringAnimationHookState
   @override
   void initHook() {
     super.initHook();
+
+    /// Initialize the `controller with the default value passed in
     hook.controller.value = hook.value;
   }
 
+  /// Utility function to run the animation with given start and end values
   void run(double start, double end) => hook.controller.animateWith(
         SpringSimulation(
           hook.spring.description,
@@ -111,84 +117,11 @@ class _SpringAnimationHookState
   @override
   void didUpdateHook(_SpringAnimationHook oldHook) {
     if (oldHook.value != hook.value) {
+      /// Every time the `hook.value` changes, run the animation from wherever it was interrupted
       run(hook.controller.value, hook.value);
     }
   }
 
   @override
   AnimationController build(BuildContext context) => hook.controller;
-}
-
-void main(List<String> args) => runApp(const AnimatedPositionedHookExample());
-
-class AnimatedPositionedHookExample extends HookWidget {
-  const AnimatedPositionedHookExample({Key key});
-
-  @override
-  Widget build(BuildContext context) {
-    final ValueNotifier<bool> isDown = useState(false);
-    final ValueNotifier<List<double>> targets = useState<List<double>>(
-      <double>[
-        100,
-        200,
-        300,
-      ],
-    );
-
-    useEffect(() {
-      targets.value = isDown.value ? [520, 410, 300] : [0, 110, 220];
-      return;
-    }, <bool>[isDown.value]);
-
-    return MaterialApp(
-      home: SafeArea(
-        child: Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => isDown.value = !isDown.value,
-          ),
-          body: Stack(
-            children: List<Box>.generate(
-              3,
-              (int index) => Box(
-                index: index,
-                target: targets.value.elementAt(index),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class Box extends HookWidget {
-  const Box({
-    Key key,
-    this.index,
-    this.target,
-  }) : super(key: key);
-
-  final double target;
-  final int index;
-
-  @override
-  Widget build(BuildContext context) {
-    // final double position = useSpringAnimationClass(target);
-    final AnimationController animationController =
-        useSpringAnimationClass(target);
-
-    final Container child = useMemoized(
-      () => Container(
-        width: 100,
-        height: 100,
-        color: Colors.blue,
-      ),
-    );
-
-    return Positioned(
-      top: animationController.value,
-      left: (MediaQuery.of(context).size.width - 100) / 2,
-      child: child,
-    );
-  }
 }

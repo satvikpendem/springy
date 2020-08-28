@@ -107,3 +107,72 @@ Widget _springScale({
     child: child,
   );
 }
+
+@hwidget
+Widget springScaleTransitionInverted({
+  @required Widget child,
+  Spring spring,
+  double scaleInitialValue = 1,
+  double scaleFinalValue = 1.25,
+  double toX = 0,
+  double toY = 0,
+  void Function(TapDownDetails) onTapDown,
+  void Function(TapUpDetails) onTapUp,
+  void Function() onTapCancel,
+  void Function(DragStartDetails) onDragStart,
+  void Function(DragUpdateDetails) onDragUpdate,
+  void Function(DragEndDetails) onDragEnd,
+  void Function() onDragCancel,
+  Alignment alignment = Alignment.center,
+}) {
+  final AnimationController scaleController =
+      useSpringAnimation(scaleInitialValue);
+
+  final AnimationController translateXController = useSpringAnimation(toX);
+  final AnimationController translateYController = useSpringAnimation(toY);
+
+  return Transform(
+    transform: Matrix4.identity()
+      ..translate(translateXController.value, translateYController.value)
+      ..scale(scaleController.value),
+    alignment: alignment,
+    child: GestureDetector(
+        //   onTapDown: (TapDownDetails details) {
+        //     (onTapDown ??= (TapDownDetails _) {})(details);
+        //     scale.value = scaleFinalValue;
+        //     print('Down: ${scale.value}');
+        //   },
+        //   onTapUp: (TapUpDetails details) {
+        //     (onTapUp ??= (TapUpDetails _) {})(details);
+        //     scale.value = scaleInitialValue;
+        //     print('Up: ${scale.value}');
+        //   },
+        //   onTapCancel: () {
+        //     (onTapCancel ??= () {})();
+        //     scale.value = scaleInitialValue;
+        //   },
+        //   onVerticalDragStart: (DragStartDetails details) {
+        //     (onDragStart ?? (DragStartDetails _) {})(details);
+        //     scale.value = scaleFinalValue;
+        //   },
+        //   onVerticalDragUpdate: (DragUpdateDetails details) {
+        //     (onDragUpdate ?? (DragUpdateDetails _) {})(details);
+        //     scale.value = scaleFinalValue;
+        //   },
+        //   onVerticalDragEnd: (DragEndDetails details) {
+        //     (onDragEnd ?? (DragEndDetails _) {})(details);
+        //     scale.value = scaleInitialValue;
+        //   },
+        //   onVerticalDragCancel: () {
+        //     (onDragCancel ?? () {})();
+        //     scale.value = scaleInitialValue;
+        //   },
+        //   child: _SpringScale(
+        //     scale: scale.value,
+        //     translateX: toX,
+        //     translateY: toY,
+        //     child: child,
+        //   ),
+        ),
+  );
+}

@@ -55,9 +55,8 @@ class Boxes extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).size.height,
-            bottom: MediaQuery.of(context).size.height,
-            left: MediaQuery.of(context).size.width,
             right: MediaQuery.of(context).size.width,
+            left: MediaQuery.of(context).size.width,
           ),
         ),
         ...List<Box>.generate(
@@ -79,12 +78,11 @@ Widget box(
   @required int index,
   @required double target,
 }) {
-  // final AnimationController animationController = useSpringAnimation(target);
+  final AnimationController animationController = useSpringAnimation(target);
 
-  // final child =
-  return SpringScaleTransition(
+  final child = SpringScaleTransition(
     scaleFinalValue: 2,
-    toY: target,
+    // toY: target,
     child: SpringBox(
       description: 'Hello',
       color: <Color>[
@@ -94,11 +92,12 @@ Widget box(
       ].elementAt(index),
     ),
   );
-  // );
 
-  // return Positioned(
-  //   top: animationController.value,
-  //   left: (MediaQuery.of(context).size.width - 100) / 2,
-  //   child: child,
-  // );
+  return Positioned(
+    top: animationController.value,
+    left: (MediaQuery.of(context).size.width - 100) / 2,
+    child: child,
+  );
+
+  // return child;
 }

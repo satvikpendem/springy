@@ -35,8 +35,8 @@ Widget springTranslationTransition({
   final ValueNotifier<double> x = useState<double>(toX);
   final ValueNotifier<double> y = useState<double>(toY);
 
-  final SpringAnimation xAnimation = useSpringAnimation();
-  final SpringAnimation yAnimation = useSpringAnimation();
+  final SpringAnimator xAnimation = useSpringAnimator();
+  final SpringAnimator yAnimation = useSpringAnimator();
 
   double xTranslation = x.value * (xAnimation.controller.value);
   double yTranslation = y.value * (yAnimation.controller.value);

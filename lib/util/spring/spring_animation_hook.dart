@@ -4,15 +4,15 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'spring.dart';
 
-/// Class for holding return values of [useSpringAnimation] hook
-class SpringAnimation {
+/// Class for holding return values of [useSpringAnimator] hook
+class SpringAnimator {
   /// Default constructor
-  const SpringAnimation(this.controller, this.run, this.intermediateValue);
+  const SpringAnimator(this.controller, this.run, this.intermediateValue);
 
   /// [AnimationController] for [SpringSimulation]
   final AnimationController controller;
 
-  /// [runAnimation] function inside [useSpringAnimation]
+  /// [runAnimation] function inside [useSpringAnimator]
   final void Function(double start, double end) run;
 
   /// Value for changing animation on cancelation
@@ -20,7 +20,7 @@ class SpringAnimation {
 }
 
 /// Hook for creating [Spring] animations that handle initializing the controller, disposing it, and running animations
-SpringAnimation useSpringAnimation([Spring spring]) {
+SpringAnimator useSpringAnimator([Spring spring]) {
   final ValueNotifier<double> intermediateValue = useState<double>(0);
   AnimationController controller;
   final Spring _spring = spring ?? Spring();
@@ -51,14 +51,14 @@ SpringAnimation useSpringAnimation([Spring spring]) {
         ),
       );
 
-  return SpringAnimation(
+  return SpringAnimator(
     controller,
     runAnimation,
     intermediateValue.value,
   );
 }
 
-AnimationController useSpringAnimationClass(double value, {Spring spring}) {
+AnimationController useSpringAnimation(double value, {Spring spring}) {
   /// Initialize default spring if none is passed in
   spring ??= Spring();
 

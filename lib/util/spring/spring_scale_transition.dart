@@ -13,6 +13,7 @@ part 'spring_scale_transition.g.dart';
 Widget springScaleTransition({
   @required Widget child,
   Spring spring,
+  double initialValue = 1,
   double maxScaleFactor = 0.25,
   void Function(DragStartDetails) onDragStart,
   void Function(DragUpdateDetails) onDragUpdate,
@@ -23,42 +24,64 @@ Widget springScaleTransition({
   assert(_spring.description.mass > 0, 'Mass must be greater than 0');
 
   /// If Drag GestureDetectorCallbacks are not specified, defaults are made
-  final void Function(DragStartDetails p1) _onDragStart =
-      onDragStart ?? (DragStartDetails _) {};
-  final void Function(DragUpdateDetails p1) _onDragUpdate =
-      onDragUpdate ?? (DragUpdateDetails _) {};
-  final void Function(DragEndDetails p1) _onDragEnd =
-      onDragEnd ?? (DragEndDetails _) {};
-  final void Function() _onDragCancel = onDragCancel ?? () {};
+  // TODO(satvikpendem): Remove duplicate functions
+  // final void Function(DragStartDetails p1) _onDragStart =
+  //     onDragStart ?? (DragStartDetails _) {};
+  // final void Function(DragUpdateDetails p1) _onDragUpdate =
+  //     onDragUpdate ?? (DragUpdateDetails _) {};
+  // final void Function(DragEndDetails p1) _onDragEnd =
+  //     onDragEnd ?? (DragEndDetails _) {};
+  // final void Function() _onDragCancel = onDragCancel ?? () {};
 
-  final SpringAnimation springAnimation = useSpringAnimation();
+  // final SpringAnimator springAnimation = useSpringAnimator();
+  final AnimationController animation = useSpringAnimation(initialValue);
+
+  final ValueNotifier<bool> isActive = useState<bool>(false);
+
+  /// Initial scale value is just 1
+  final ValueNotifier<double> scale = useState<double>(initialValue);
+
+  useEffect(() {
+    if (isActive.value) {
+      scale.value = initialValue + (animation.value * maxScaleFactor);
+    } else {
+      scale.value = initialValue;
+    }
+    return;
+  }, <bool>[isActive.value]);
 
   /// Scale must be at least 1, but clamping will stop the controller.value
   /// from progressing, causing the visual perception of jankiness
-  final double scale = 1 + (springAnimation.controller.value * maxScaleFactor);
+  // final double scale = 1 + (springAnimation.controller.value * maxScaleFactor);
 
   return GestureDetector(
-    onTapDown: (_) =>
-        springAnimation.run(springAnimation.intermediateValue, _spring.end),
-    onTapUp: (_) =>
-        springAnimation.run(springAnimation.intermediateValue, _spring.start),
-    onTapCancel: () =>
-        springAnimation.run(springAnimation.intermediateValue, _spring.start),
-    onVerticalDragStart: (DragStartDetails details) {
-      _onDragStart(details);
-      springAnimation.run(springAnimation.intermediateValue, _spring.end);
+    onTapDown: (_) {
+      // return springAnimation.run(springAnimation.intermediateValue, _spring.end);
+      isActive.value = true;
     },
-    onVerticalDragUpdate: _onDragUpdate,
-    onVerticalDragEnd: (DragEndDetails details) {
-      _onDragEnd(details);
-      springAnimation.run(springAnimation.intermediateValue, _spring.start);
+    onTapUp: (_) {
+      // return springAnimation.run(springAnimation.intermediateValue, _spring.start);
+      isActive.value = false;
     },
-    onVerticalDragCancel: () {
-      _onDragCancel();
-      springAnimation.run(springAnimation.intermediateValue, _spring.start);
+    onTapCancel: () {
+      // return springAnimation.run(springAnimation.intermediateValue, _spring.start);
+      isActive.value = false;
     },
+    // onVerticalDragStart: (DragStartDetails details) {
+    //   _onDragStart(details);
+    //   springAnimation.run(springAnimation.intermediateValue, _spring.end);
+    // },
+    // onVerticalDragUpdate: _onDragUpdate,
+    // onVerticalDragEnd: (DragEndDetails details) {
+    //   _onDragEnd(details);
+    //   springAnimation.run(springAnimation.intermediateValue, _spring.start);
+    // },
+    // onVerticalDragCancel: () {
+    //   _onDragCancel();
+    //   springAnimation.run(springAnimation.intermediateValue, _spring.start);
+    // },
     child: Transform(
-      transform: Matrix4.identity()..scale(scale),
+      transform: Matrix4.identity()..scale(scale.value),
       alignment: Alignment.center,
       child: child,
     ),

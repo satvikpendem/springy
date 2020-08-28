@@ -52,10 +52,9 @@ Widget app() {
 @hwidget
 Widget box(BuildContext context,
     {@required int index, @required double target}) {
-  final AnimationController animationController =
-      useSpringAnimationClass(target);
+  final AnimationController animationController = useSpringAnimation(target);
 
-  final SpringScaleTransition child = useMemoized(
+  final child = useMemoized(
     () => SpringScaleTransition(
       child: SpringBox(
         description: 'Hello',

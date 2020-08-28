@@ -34,43 +34,71 @@ Widget app() {
         floatingActionButton: FloatingActionButton(
           onPressed: () => isDown.value = !isDown.value,
         ),
-        body: Stack(
-          children: List<Box>.generate(
-            targets.value.length,
-            (int index) => Box(
-              index: index,
-              target: targets.value.elementAt(index),
-            ),
-          ),
-        ),
+        body: Boxes(targets: targets),
       ),
     ),
   );
 }
 
+class Boxes extends StatelessWidget {
+  const Boxes({
+    Key key,
+    @required this.targets,
+  }) : super(key: key);
+
+  final ValueNotifier<List<double>> targets;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).size.height,
+            bottom: MediaQuery.of(context).size.height,
+            left: MediaQuery.of(context).size.width,
+            right: MediaQuery.of(context).size.width,
+          ),
+        ),
+        ...List<Box>.generate(
+          targets.value.length,
+          (int index) => Box(
+            index: index,
+            target: targets.value.elementAt(index),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Box
 @hwidget
-Widget box(BuildContext context,
-    {@required int index, @required double target}) {
-  final AnimationController animationController = useSpringAnimation(target);
+Widget box(
+  BuildContext context, {
+  @required int index,
+  @required double target,
+}) {
+  // final AnimationController animationController = useSpringAnimation(target);
 
-  final child = useMemoized(
-    () => SpringScaleTransition(
-      finalValue: 5,
-      child: SpringBox(
-        description: 'Hello',
-        color: <Color>[
-          Colors.blue,
-          Colors.red,
-          Colors.green,
-        ].elementAt(index),
-      ),
+  // final child =
+  return SpringScaleTransition(
+    scaleFinalValue: 2,
+    toY: target,
+    child: SpringBox(
+      description: 'Hello',
+      color: <Color>[
+        Colors.blue,
+        Colors.red,
+        Colors.green,
+      ].elementAt(index),
     ),
   );
+  // );
 
-  return Positioned(
-    top: animationController.value,
-    left: (MediaQuery.of(context).size.width - 100) / 2,
-    child: child,
-  );
+  // return Positioned(
+  //   top: animationController.value,
+  //   left: (MediaQuery.of(context).size.width - 100) / 2,
+  //   child: child,
+  // );
 }

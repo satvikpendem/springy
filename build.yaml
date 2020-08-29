@@ -1,0 +1,7 @@
+targets:
+  $default:
+    builders:
+      functional_widget:
+        options:
+          debugFillProperties: true
+          widgetType: hook

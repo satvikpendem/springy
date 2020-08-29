@@ -16,12 +16,10 @@ class App extends HookWidget {
 }
 
 class Boxes extends HookWidget {
-  const Boxes({Key key, this.targets}) : super(key: key);
-
-  final List<double> targets;
+  const Boxes({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext _context) => boxes(_context, targets: targets);
+  Widget build(BuildContext _context) => boxes(_context);
 }
 
 /// Box

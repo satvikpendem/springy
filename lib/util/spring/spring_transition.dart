@@ -20,7 +20,8 @@ part 'spring_transition.g.dart';
 ///
 /// The gesture functions can be passed in for whichever gestures are desired to have the scale property on
 @hwidget
-Widget springTransition({
+Widget springTransition(
+  Key key, {
   @required Widget child,
   Spring spring,
   double scaleInitialValue = 1,
@@ -46,6 +47,7 @@ Widget springTransition({
   final AnimationController y = useSpringAnimation(toY);
 
   return Positioned(
+    key: key,
     left: x.value,
     top: y.value,
     child: GestureDetector(

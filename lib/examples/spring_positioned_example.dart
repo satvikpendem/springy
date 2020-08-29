@@ -39,27 +39,26 @@ Widget app() {
   );
 }
 
+/// Boxes to tap and drag
 @hwidget
-Widget boxes(BuildContext context, {List<double> targets}) {
-  return Stack(
-    children: <Widget>[
-      Padding(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).size.height,
-          right: MediaQuery.of(context).size.width,
-          left: MediaQuery.of(context).size.width,
+Widget boxes(BuildContext context, {List<double> targets}) => Stack(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).size.height,
+            right: MediaQuery.of(context).size.width,
+            left: MediaQuery.of(context).size.width,
+          ),
         ),
-      ),
-      ...List<Box>.generate(
-        targets.length,
-        (int index) => Box(
-          index: index,
-          target: targets[index],
+        ...List<Box>.generate(
+          targets.length,
+          (int index) => Box(
+            index: index,
+            target: targets[index],
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
 
 /// Box
 @hwidget

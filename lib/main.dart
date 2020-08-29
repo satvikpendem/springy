@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
@@ -9,16 +10,19 @@ part 'main.g.dart';
 
 void main(List<String> args) => runApp(const App());
 
+/// Contains data about each [Box]
 class BoxData {
+  /// Default Constructor
   BoxData({
     @required this.color,
     @required this.target,
-    // @required this.index,
   });
 
+  /// [Color] of the box
   Color color;
+
+  /// Target of where the box should move
   double target;
-  // int index;
 
   @override
   String toString() {
@@ -38,6 +42,7 @@ class BoxData {
   }
 }
 
+/// Default [Color] list
 const List<Color> colors = <Color>[
   Colors.red,
   Colors.blue,
@@ -62,6 +67,7 @@ Widget app() => MaterialApp(
       ),
     );
 
+/// Boxes to tap and drag
 @hwidget
 Widget boxes(
   BuildContext context,
@@ -95,7 +101,7 @@ Widget boxes(
             toY: box.target,
             suppressAnimation: isDragging.value,
             onTapDown: (_) {
-              boxData.value = [
+              boxData.value = <BoxData>[
                 ...boxData.value
                   ..remove(box)
                   ..add(box)
@@ -106,7 +112,7 @@ Widget boxes(
 
               box.target += details.primaryDelta;
 
-              boxData.value = [
+              boxData.value = <BoxData>[
                 ...boxData.value
                   ..remove(box)
                   ..add(box)

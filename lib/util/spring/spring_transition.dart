@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -92,8 +93,6 @@ Widget springTransition(
       },
       child: _SpringScale(
         scale: scale.value,
-        // translateX: toX,
-        // translateY: toY,
         child: child,
       ),
     ),

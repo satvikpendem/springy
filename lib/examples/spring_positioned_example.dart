@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 
-import '../util/spring/spring_animation_hook.dart';
 import '../util/spring/spring_box.dart';
 import '../util/spring/spring_scale_transition.dart';
 
@@ -77,27 +76,17 @@ Widget box(
   BuildContext context, {
   @required int index,
   @required double target,
-}) {
-  final AnimationController animationController = useSpringAnimation(target);
-
-  final child = SpringScaleTransition(
-    scaleFinalValue: 2,
-    // toY: target,
-    child: SpringBox(
-      description: 'Hello',
-      color: <Color>[
-        Colors.blue,
-        Colors.red,
-        Colors.green,
-      ].elementAt(index),
-    ),
-  );
-
-  return Positioned(
-    top: animationController.value,
-    left: (MediaQuery.of(context).size.width - 100) / 2,
-    child: child,
-  );
-
-  // return child;
-}
+}) =>
+    SpringScaleTransition(
+      scaleFinalValue: 2,
+      toX: MediaQuery.of(context).size.width / 2,
+      toY: target,
+      child: SpringBox(
+        description: 'Hello',
+        color: <Color>[
+          Colors.blue,
+          Colors.red,
+          Colors.green,
+        ].elementAt(index),
+      ),
+    );

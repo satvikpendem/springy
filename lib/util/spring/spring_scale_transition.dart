@@ -42,42 +42,47 @@ Widget springScaleTransition({
   /// The scale value to keep track of, starting at [initialValue]
   final ValueNotifier<double> scale = useState<double>(scaleInitialValue);
 
-  return GestureDetector(
-    onTapDown: (TapDownDetails details) {
-      (onTapDown ??= (TapDownDetails _) {})(details);
-      scale.value = scaleFinalValue;
-      print('Down: ${scale.value}');
-    },
-    onTapUp: (TapUpDetails details) {
-      (onTapUp ??= (TapUpDetails _) {})(details);
-      scale.value = scaleInitialValue;
-      print('Up: ${scale.value}');
-    },
-    onTapCancel: () {
-      (onTapCancel ??= () {})();
-      scale.value = scaleInitialValue;
-    },
-    onVerticalDragStart: (DragStartDetails details) {
-      (onDragStart ?? (DragStartDetails _) {})(details);
-      scale.value = scaleFinalValue;
-    },
-    onVerticalDragUpdate: (DragUpdateDetails details) {
-      (onDragUpdate ?? (DragUpdateDetails _) {})(details);
-      scale.value = scaleFinalValue;
-    },
-    onVerticalDragEnd: (DragEndDetails details) {
-      (onDragEnd ?? (DragEndDetails _) {})(details);
-      scale.value = scaleInitialValue;
-    },
-    onVerticalDragCancel: () {
-      (onDragCancel ?? () {})();
-      scale.value = scaleInitialValue;
-    },
-    child: _SpringScale(
-      scale: scale.value,
-      translateX: toX,
-      translateY: toY,
-      child: child,
+  final AnimationController x = useSpringAnimation(toX);
+  final AnimationController y = useSpringAnimation(toY);
+
+  return Positioned(
+    left: x.value,
+    top: y.value,
+    child: GestureDetector(
+      onTapDown: (TapDownDetails details) {
+        (onTapDown ??= (TapDownDetails _) {})(details);
+        scale.value = scaleFinalValue;
+      },
+      onTapUp: (TapUpDetails details) {
+        (onTapUp ??= (TapUpDetails _) {})(details);
+        scale.value = scaleInitialValue;
+      },
+      onTapCancel: () {
+        (onTapCancel ??= () {})();
+        scale.value = scaleInitialValue;
+      },
+      onVerticalDragStart: (DragStartDetails details) {
+        (onDragStart ?? (DragStartDetails _) {})(details);
+        scale.value = scaleFinalValue;
+      },
+      onVerticalDragUpdate: (DragUpdateDetails details) {
+        (onDragUpdate ?? (DragUpdateDetails _) {})(details);
+        scale.value = scaleFinalValue;
+      },
+      onVerticalDragEnd: (DragEndDetails details) {
+        (onDragEnd ?? (DragEndDetails _) {})(details);
+        scale.value = scaleInitialValue;
+      },
+      onVerticalDragCancel: () {
+        (onDragCancel ?? () {})();
+        scale.value = scaleInitialValue;
+      },
+      child: _SpringScale(
+        scale: scale.value,
+        // translateX: toX,
+        // translateY: toY,
+        child: child,
+      ),
     ),
   );
 }
@@ -85,8 +90,8 @@ Widget springScaleTransition({
 @hwidget
 Widget _springScale({
   @required double scale,
-  @required double translateX,
-  @required double translateY,
+  // @required double translateX,
+  // @required double translateY,
   @required Widget child,
   Alignment alignment = Alignment.center,
 }) {
@@ -94,85 +99,16 @@ Widget _springScale({
   /// as it uses `didUpdateHook` to understand when to rebuild and run the animation
   final AnimationController scaleController = useSpringAnimation(scale);
 
-  final AnimationController translateXController =
-      useSpringAnimation(translateX);
-  final AnimationController translateYController =
-      useSpringAnimation(translateY);
+  // final AnimationController translateXController =
+  //     useSpringAnimation(translateX);
+  // final AnimationController translateYController =
+  //     useSpringAnimation(translateY);
 
   return Transform(
     transform: Matrix4.identity()
-      ..translate(translateXController.value, translateYController.value)
+      // ..translate(translateXController.value, translateYController.value)
       ..scale(scaleController.value),
     alignment: alignment,
     child: child,
-  );
-}
-
-@hwidget
-Widget springScaleTransitionInverted({
-  @required Widget child,
-  Spring spring,
-  double scaleInitialValue = 1,
-  double scaleFinalValue = 1.25,
-  double toX = 0,
-  double toY = 0,
-  void Function(TapDownDetails) onTapDown,
-  void Function(TapUpDetails) onTapUp,
-  void Function() onTapCancel,
-  void Function(DragStartDetails) onDragStart,
-  void Function(DragUpdateDetails) onDragUpdate,
-  void Function(DragEndDetails) onDragEnd,
-  void Function() onDragCancel,
-  Alignment alignment = Alignment.center,
-}) {
-  final AnimationController scaleController =
-      useSpringAnimation(scaleInitialValue);
-
-  final AnimationController translateXController = useSpringAnimation(toX);
-  final AnimationController translateYController = useSpringAnimation(toY);
-
-  return Transform(
-    transform: Matrix4.identity()
-      ..translate(translateXController.value, translateYController.value)
-      ..scale(scaleController.value),
-    alignment: alignment,
-    child: GestureDetector(
-        //   onTapDown: (TapDownDetails details) {
-        //     (onTapDown ??= (TapDownDetails _) {})(details);
-        //     scale.value = scaleFinalValue;
-        //     print('Down: ${scale.value}');
-        //   },
-        //   onTapUp: (TapUpDetails details) {
-        //     (onTapUp ??= (TapUpDetails _) {})(details);
-        //     scale.value = scaleInitialValue;
-        //     print('Up: ${scale.value}');
-        //   },
-        //   onTapCancel: () {
-        //     (onTapCancel ??= () {})();
-        //     scale.value = scaleInitialValue;
-        //   },
-        //   onVerticalDragStart: (DragStartDetails details) {
-        //     (onDragStart ?? (DragStartDetails _) {})(details);
-        //     scale.value = scaleFinalValue;
-        //   },
-        //   onVerticalDragUpdate: (DragUpdateDetails details) {
-        //     (onDragUpdate ?? (DragUpdateDetails _) {})(details);
-        //     scale.value = scaleFinalValue;
-        //   },
-        //   onVerticalDragEnd: (DragEndDetails details) {
-        //     (onDragEnd ?? (DragEndDetails _) {})(details);
-        //     scale.value = scaleInitialValue;
-        //   },
-        //   onVerticalDragCancel: () {
-        //     (onDragCancel ?? () {})();
-        //     scale.value = scaleInitialValue;
-        //   },
-        //   child: _SpringScale(
-        //     scale: scale.value,
-        //     translateX: toX,
-        //     translateY: toY,
-        //     child: child,
-        //   ),
-        ),
   );
 }

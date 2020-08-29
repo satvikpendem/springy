@@ -13,8 +13,8 @@ part 'spring_translation_transition.g.dart';
 Widget springTranslationTransition({
   @required Widget child,
   Spring spring,
-  double toX = 0,
-  double toY = 0,
+  double toX,
+  double toY,
   void Function(DragStartDetails) onDragStart,
   void Function(DragUpdateDetails) onDragUpdate,
   void Function(DragEndDetails) onDragEnd,
@@ -32,17 +32,29 @@ Widget springTranslationTransition({
       onDragEnd ?? (DragEndDetails _) {};
   final void Function() _onDragCancel = onDragCancel ?? () {};
 
-  final SpringAnimation xAnimation = useSpringAnimation();
-  final SpringAnimation yAnimation = useSpringAnimation();
+  final ValueNotifier<double> x = useState<double>(toX);
+  final ValueNotifier<double> y = useState<double>(toY);
 
-  /// Scale must be at least 1, but clamping will stop the controller.value
-  /// from progressing, causing the visual perception of jankiness
-  final double xTranslation = toX * (xAnimation.controller.value);
-  final double yTranslation = toY * (yAnimation.controller.value);
-  // final ValueNotifier<double> xTranslation =
-  //     useState<double>(toX * (xAnimation.controller.value));
-  // final ValueNotifier<double> yTranslation =
-  //     useState<double>(toY * (xAnimation.controller.value));
+  final SpringAnimator xAnimation = useSpringAnimator();
+  final SpringAnimator yAnimation = useSpringAnimator();
+
+  double xTranslation = x.value * (xAnimation.controller.value);
+  double yTranslation = y.value * (yAnimation.controller.value);
+
+  useEffect(() {
+    x.value = toX;
+    y.value = toY;
+
+    xTranslation = x.value * (xAnimation.controller.value);
+    yTranslation = y.value * (yAnimation.controller.value);
+
+    xAnimation.run(xAnimation.intermediateValue, _spring.end);
+    yAnimation.run(yAnimation.intermediateValue, _spring.end);
+
+    return;
+  }, <ValueNotifier<double>>[x, y]);
+
+  // void run() => yAnimation.run(yAnimation.intermediateValue, _spring.end);
 
   return GestureDetector(
     onVerticalDragStart: (DragStartDetails details) {

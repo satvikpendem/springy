@@ -32,6 +32,8 @@ class BoxData {
       list.add('green');
     }
 
+    list.add(target.toString());
+
     return list.toString();
   }
 }
@@ -102,20 +104,28 @@ Widget boxes(
               ];
             },
             onDragUpdate: (DragUpdateDetails details) {
+              box.target += details.primaryDelta;
+
               boxData.value = [
                 ...boxData.value
-                  ..removeAt(index)
-                  ..insert(
-                    index,
-                    BoxData(
-                      color: box.color,
-                      target: box.target + details.primaryDelta,
-                    ),
-                  ),
+                  ..remove(box)
+                  ..add(box)
               ];
+
+              // boxData.value = [
+              //   ...boxData.value
+              //     ..removeAt(index)
+              //     ..insert(
+              //       index,
+              //       BoxData(
+              //         color: box.color,
+              //         target: box.target + details.primaryDelta,
+              //       ),
+              //     ),
+              // ];
               print(box.target);
             },
-            child: SpringBox(color: colors[index]),
+            child: SpringBox(color: box.color),
           );
         },
       ),

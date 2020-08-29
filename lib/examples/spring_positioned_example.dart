@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 
 import '../util/spring/spring_box.dart';
-import '../util/spring/spring_scale_transition.dart';
+import '../util/spring/spring_transition.dart';
 
 part 'spring_positioned_example.g.dart';
 
@@ -33,41 +33,32 @@ Widget app() {
         floatingActionButton: FloatingActionButton(
           onPressed: () => isDown.value = !isDown.value,
         ),
-        body: Boxes(targets: targets),
+        body: Boxes(targets: targets.value),
       ),
     ),
   );
 }
 
-class Boxes extends StatelessWidget {
-  const Boxes({
-    Key key,
-    @required this.targets,
-  }) : super(key: key);
-
-  final ValueNotifier<List<double>> targets;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height,
-            right: MediaQuery.of(context).size.width,
-            left: MediaQuery.of(context).size.width,
-          ),
+@hwidget
+Widget boxes(BuildContext context, {List<double> targets}) {
+  return Stack(
+    children: <Widget>[
+      Padding(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height,
+          right: MediaQuery.of(context).size.width,
+          left: MediaQuery.of(context).size.width,
         ),
-        ...List<Box>.generate(
-          targets.value.length,
-          (int index) => Box(
-            index: index,
-            target: targets.value.elementAt(index),
-          ),
+      ),
+      ...List<Box>.generate(
+        targets.length,
+        (int index) => Box(
+          index: index,
+          target: targets[index],
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }
 
 /// Box
@@ -77,7 +68,7 @@ Widget box(
   @required int index,
   @required double target,
 }) =>
-    SpringScaleTransition(
+    SpringTransition(
       scaleFinalValue: 2,
       toX: MediaQuery.of(context).size.width / 2,
       toY: target,

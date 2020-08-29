@@ -4,9 +4,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 
 import 'spring.dart';
-import 'spring_animation_hook.dart';
+import 'use_spring_animation.dart';
 
-part 'spring_scale_transition.g.dart';
+part 'spring_transition.g.dart';
 
 /// Container that can use [SpringSimulation]s for [Transform]s
 ///
@@ -20,7 +20,7 @@ part 'spring_scale_transition.g.dart';
 ///
 /// The gesture functions can be passed in for whichever gestures are desired to have the scale property on
 @hwidget
-Widget springScaleTransition({
+Widget springTransition({
   @required Widget child,
   Spring spring,
   double scaleInitialValue = 1,
@@ -99,15 +99,8 @@ Widget _springScale({
   /// as it uses `didUpdateHook` to understand when to rebuild and run the animation
   final AnimationController scaleController = useSpringAnimation(scale);
 
-  // final AnimationController translateXController =
-  //     useSpringAnimation(translateX);
-  // final AnimationController translateYController =
-  //     useSpringAnimation(translateY);
-
   return Transform(
-    transform: Matrix4.identity()
-      // ..translate(translateXController.value, translateYController.value)
-      ..scale(scaleController.value),
+    transform: Matrix4.identity()..scale(scaleController.value),
     alignment: alignment,
     child: child,
   );

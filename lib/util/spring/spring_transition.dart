@@ -18,6 +18,10 @@ part 'spring_transition.g.dart';
 ///
 /// [child]: The child to scale
 ///
+/// [suppressAnimation]: Whether to stop the default [Spring] animation and just use a zero [Duration] linear [Curve]
+/// This can be useful when dragging a [Widget] that uses this hook, as without this, the user faces lag between
+/// their interaction and the actual movement of the Widget on-screen.
+///
 /// The gesture functions can be passed in for whichever gestures are desired to have the scale property on
 @hwidget
 Widget springTransition(
@@ -28,6 +32,7 @@ Widget springTransition(
   double scaleFinalValue = 1.25,
   double toX = 0,
   double toY = 0,
+  bool suppressAnimation = false,
   void Function(TapDownDetails) onTapDown,
   void Function(TapUpDetails) onTapUp,
   void Function() onTapCancel,
@@ -43,8 +48,14 @@ Widget springTransition(
   /// The scale value to keep track of, starting at [initialValue]
   final ValueNotifier<double> scale = useState<double>(scaleInitialValue);
 
-  final AnimationController x = useSpringAnimation(toX);
-  final AnimationController y = useSpringAnimation(toY);
+  final AnimationController x = useSpringAnimation(
+    toX,
+    suppressAnimation: suppressAnimation,
+  );
+  final AnimationController y = useSpringAnimation(
+    toY,
+    suppressAnimation: suppressAnimation,
+  );
 
   return Positioned(
     key: key,
@@ -92,8 +103,6 @@ Widget springTransition(
 @hwidget
 Widget _springScale({
   @required double scale,
-  // @required double translateX,
-  // @required double translateY,
   @required Widget child,
   Alignment alignment = Alignment.center,
 }) {

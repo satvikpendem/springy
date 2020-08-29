@@ -72,10 +72,7 @@ Widget boxes(
     BoxData(color: Colors.green, target: 220),
   ]);
 
-  useEffect(() {
-    print(boxData);
-    return;
-  }, [boxData.value]);
+  final ValueNotifier<bool> isDragging = useState<bool>(false);
 
   return Stack(
     children: <Widget>[
@@ -96,6 +93,7 @@ Widget boxes(
             scaleFinalValue: 2,
             toX: (MediaQuery.of(context).size.width - 125) / 2,
             toY: box.target,
+            suppressAnimation: isDragging.value,
             onTapDown: (_) {
               boxData.value = [
                 ...boxData.value
@@ -104,6 +102,8 @@ Widget boxes(
               ];
             },
             onDragUpdate: (DragUpdateDetails details) {
+              isDragging.value = true;
+
               box.target += details.primaryDelta;
 
               boxData.value = [
@@ -111,19 +111,6 @@ Widget boxes(
                   ..remove(box)
                   ..add(box)
               ];
-
-              // boxData.value = [
-              //   ...boxData.value
-              //     ..removeAt(index)
-              //     ..insert(
-              //       index,
-              //       BoxData(
-              //         color: box.color,
-              //         target: box.target + details.primaryDelta,
-              //       ),
-              //     ),
-              // ];
-              print(box.target);
             },
             child: SpringBox(color: box.color),
           );

@@ -63,7 +63,7 @@ class _SpringAnimationHookState
   void initHook() {
     super.initHook();
 
-    /// Initialize the `controller with the default value passed in
+    /// Initialize the `controller` with the default `value` passed in
     hook.controller.value = hook.value;
   }
 

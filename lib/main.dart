@@ -120,8 +120,24 @@ Widget boxes(
                 ..isDragging = true
                 ..target += details.primaryDelta;
 
+              // BoxData secondaryBox;
+
+              // if (details.primaryDelta > 0) {
+              //   if (box.position < boxData.value.length - 2) {
+              //     secondaryBox = boxData.value.firstWhere((BoxData element) =>
+              //         element.position == box.position + 1);
+              //   }
+              // } else {
+              //   if (box.position >= 1) {
+              //     secondaryBox = boxData.value.firstWhere((BoxData element) =>
+              //         element.position == box.position - 1);
+              //   }
+              // }
+
               boxData.value = <BoxData>[
                 ...boxData.value
+                  // ..remove(secondaryBox)
+                  // ..add(secondaryBox)
                   ..remove(box)
                   ..add(box)
               ];
@@ -134,10 +150,12 @@ Widget boxes(
                   ..sort((BoxData a, BoxData b) =>
                       a.position.compareTo(b.position));
 
-                data[box.position + 1]
-                  ..target -= 100
-                  ..position -= 1;
-                data[box.position].position += 1;
+                if (box.position < boxData.value.length - 1) {
+                  data[box.position + 1]
+                    ..target -= 100
+                    ..position -= 1;
+                  data[box.position].position += 1;
+                }
 
                 boxData.value = <BoxData>[...data];
               } else if (box.target <= (100 * box.position) - 50) {
@@ -145,10 +163,12 @@ Widget boxes(
                   ..sort((BoxData a, BoxData b) =>
                       a.position.compareTo(b.position));
 
-                data[box.position - 1]
-                  ..target += 100
-                  ..position += 1;
-                data[box.position].position -= 1;
+                if (box.position > 0) {
+                  data[box.position - 1]
+                    ..target += 100
+                    ..position += 1;
+                  data[box.position].position -= 1;
+                }
 
                 boxData.value = <BoxData>[...data];
               }

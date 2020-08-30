@@ -10,13 +10,14 @@ part 'main.g.dart';
 
 void main(List<String> args) => runApp(const App());
 
-/// Contains data about each [Box]
+/// Contains data about each box
 class BoxData {
   /// Default Constructor
   BoxData({
     @required this.color,
     @required this.target,
-    @required this.index,
+    @required this.position,
+    this.isDragging = false,
   });
 
   /// [Color] of the box
@@ -26,7 +27,10 @@ class BoxData {
   double target;
 
   /// Position in list
-  int index;
+  int position;
+
+  /// Whether this element is being dragged, for suppressing animation if so
+  bool isDragging;
 
   @override
   String toString() {
@@ -47,11 +51,11 @@ class BoxData {
 }
 
 /// Default [Color] list
-const List<Color> colors = <Color>[
-  Colors.red,
-  Colors.blue,
-  Colors.green,
-];
+// const List<Color> colors = <Color>[
+//   Colors.red,
+//   Colors.blue,
+//   Colors.green,
+// ];
 
 /// App
 @hwidget
@@ -77,12 +81,12 @@ Widget boxes(
   BuildContext context,
 ) {
   final ValueNotifier<List<BoxData>> boxData = useState(<BoxData>[
-    BoxData(color: Colors.red, target: 0, index: 0),
-    BoxData(color: Colors.blue, target: 100, index: 1),
-    BoxData(color: Colors.green, target: 200, index: 2),
+    BoxData(color: Colors.red, target: 0, position: 0),
+    BoxData(color: Colors.blue, target: 100, position: 1),
+    BoxData(color: Colors.green, target: 200, position: 2),
   ]);
 
-  final ValueNotifier<bool> isDragging = useState<bool>(false);
+  // final ValueNotifier<bool> isDragging = useState<bool>(false);
 
   return Stack(
     children: <Widget>[
@@ -102,7 +106,8 @@ Widget boxes(
             key: ValueKey<BoxData>(box),
             toX: (MediaQuery.of(context).size.width - 125) / 2,
             toY: box.target,
-            suppressAnimation: isDragging.value,
+            // suppressAnimation: isDragging.value,
+            suppressAnimation: box.isDragging,
             onTapDown: (_) {
               boxData.value = <BoxData>[
                 ...boxData.value
@@ -111,9 +116,9 @@ Widget boxes(
               ];
             },
             onDragUpdate: (DragUpdateDetails details) {
-              isDragging.value = true;
-
-              box.target += details.primaryDelta;
+              box
+                ..isDragging = true
+                ..target += details.primaryDelta;
 
               boxData.value = <BoxData>[
                 ...boxData.value
@@ -122,25 +127,29 @@ Widget boxes(
               ];
 
               /// If not the last box in the list
-              if (box.index != boxData.value.length - 1) {
-                if (box.target > (100 * box.index) + 50) {
-                  final List<BoxData> tempData = boxData.value.toList()
-                    ..sort(
-                        (BoxData a, BoxData b) => a.index.compareTo(b.index));
-                  tempData[box.index + 1].target -= 100;
-                  tempData[box.index + 1].index -= 1;
-                  tempData[box.index].index += 1;
+              if (box.position != boxData.value.length - 1) {
+                if (box.target > (100 * box.position) + 50) {
+                  // TODO(satvikpendem): This sort might mess up the topology of the stack
+                  final List<BoxData> data = boxData.value
+                    ..sort((BoxData a, BoxData b) =>
+                        a.position.compareTo(b.position));
 
-                  boxData.value = <BoxData>[...tempData];
+                  data[box.position + 1].target -= 100;
+                  data[box.position + 1].position -= 1;
+                  data[box.position].position += 1;
+
+                  boxData.value = <BoxData>[...data];
                 }
               }
             },
             onDragEnd: (_) {
-              box.target = 300;
+              box
+                ..isDragging = false
+                ..target = 300;
               boxData.value = <BoxData>[...boxData.value];
             },
             child: SpringBox(
-                description: 'T: $index, P: ${box.index}', color: box.color),
+                description: 'T: $index, P: ${box.position}', color: box.color),
           );
         },
       ),
@@ -149,15 +158,15 @@ Widget boxes(
 }
 
 /// Box
-@hwidget
-Widget box(
-  BuildContext context, {
-  @required int index,
-  @required double target,
-}) =>
-    SpringTransition(
-      scaleFinalValue: 2,
-      toX: (MediaQuery.of(context).size.width - 125) / 2,
-      toY: target,
-      child: SpringBox(color: colors[index]),
-    );
+// @hwidget
+// Widget box(
+//   BuildContext context, {
+//   @required int index,
+//   @required double target,
+// }) =>
+//     SpringTransition(
+//       scaleFinalValue: 2,
+//       toX: (MediaQuery.of(context).size.width - 125) / 2,
+//       toY: target,
+//       child: SpringBox(color: colors[index]),
+//     );

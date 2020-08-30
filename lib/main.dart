@@ -51,11 +51,18 @@ class BoxData {
 }
 
 /// Default [Color] list
-// const List<Color> colors = <Color>[
-//   Colors.red,
-//   Colors.blue,
-//   Colors.green,
-// ];
+const List<Color> kColorList = <Color>[
+  Colors.red,
+  Colors.blue,
+  Colors.green,
+  Colors.orange,
+  Colors.purple,
+  Colors.brown,
+  Colors.teal,
+];
+
+/// Number of boxes to generate
+const int kNumBoxes = 10;
 
 /// App
 @hwidget
@@ -80,11 +87,16 @@ Widget app() => MaterialApp(
 Widget boxes(
   BuildContext context,
 ) {
-  final ValueNotifier<List<BoxData>> boxData = useState(<BoxData>[
-    BoxData(color: Colors.red, target: 0, position: 0),
-    BoxData(color: Colors.blue, target: 100, position: 1),
-    BoxData(color: Colors.green, target: 200, position: 2),
-  ]);
+  final ValueNotifier<List<BoxData>> boxData = useState(
+    List<BoxData>.generate(
+      kNumBoxes,
+      (int index) => BoxData(
+        color: kColorList[index % kColorList.length],
+        target: index * 100.0,
+        position: index,
+      ),
+    ),
+  );
 
   // final ValueNotifier<bool> isDragging = useState<bool>(false);
 
@@ -111,6 +123,8 @@ Widget boxes(
             onTapDown: (_) {
               boxData.value = <BoxData>[
                 ...boxData.value
+
+                  /// Move box to top of [Stack]
                   ..remove(box)
                   ..add(box)
               ];
@@ -128,7 +142,7 @@ Widget boxes(
               //         element.position == box.position + 1);
               //   }
               // } else {
-              //   if (box.position >= 1) {
+              //   if (box.position > 0) {
               //     secondaryBox = boxData.value.firstWhere((BoxData element) =>
               //         element.position == box.position - 1);
               //   }
@@ -143,7 +157,6 @@ Widget boxes(
               ];
 
               /// If not the last box in the list
-              // if (box.position != boxData.value.length - 1) {
               // TODO(satvikpendem): This sort might mess up the topology of the stack
               if (box.position < boxData.value.length - 1 &&
                   box.target > (100 * box.position) + 50) {
@@ -170,7 +183,6 @@ Widget boxes(
 
                 boxData.value = <BoxData>[...data];
               }
-              // }
             },
             onDragEnd: (_) {
               box

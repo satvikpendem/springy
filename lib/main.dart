@@ -127,29 +127,43 @@ Widget boxes(
               ];
 
               /// If not the last box in the list
-              if (box.position != boxData.value.length - 1) {
-                if (box.target > (100 * box.position) + 50) {
-                  // TODO(satvikpendem): This sort might mess up the topology of the stack
-                  final List<BoxData> data = boxData.value
-                    ..sort((BoxData a, BoxData b) =>
-                        a.position.compareTo(b.position));
+              // if (box.position != boxData.value.length - 1) {
+              // TODO(satvikpendem): This sort might mess up the topology of the stack
+              if (box.target > (100 * box.position) + 50) {
+                final List<BoxData> data = boxData.value
+                  ..sort((BoxData a, BoxData b) =>
+                      a.position.compareTo(b.position));
 
-                  data[box.position + 1].target -= 100;
-                  data[box.position + 1].position -= 1;
-                  data[box.position].position += 1;
+                data[box.position + 1]
+                  ..target -= 100
+                  ..position -= 1;
+                data[box.position].position += 1;
+                // print(data);
 
-                  boxData.value = <BoxData>[...data];
-                }
+                boxData.value = <BoxData>[...data];
+              } else if (box.target <= (100 * box.position) - 50) {
+                final List<BoxData> data = boxData.value
+                  ..sort((BoxData a, BoxData b) =>
+                      a.position.compareTo(b.position));
+
+                data[box.position - 1]
+                  ..target += 100
+                  ..position += 1;
+                data[box.position].position -= 1;
+
+                boxData.value = <BoxData>[...data];
               }
+              // }
             },
             onDragEnd: (_) {
-              box
-                ..isDragging = false
-                ..target = 300;
+              box..isDragging = false;
+              // ..target = 200;
               boxData.value = <BoxData>[...boxData.value];
             },
             child: SpringBox(
-                description: 'T: $index, P: ${box.position}', color: box.color),
+                description:
+                    'I: $index, P: ${box.position}, T: ${box.target.round()}',
+                color: box.color),
           );
         },
       ),

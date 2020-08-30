@@ -138,7 +138,6 @@ Widget boxes(
                   ..target -= 100
                   ..position -= 1;
                 data[box.position].position += 1;
-                // print(data);
 
                 boxData.value = <BoxData>[...data];
               } else if (box.target <= (100 * box.position) - 50) {
@@ -156,8 +155,9 @@ Widget boxes(
               // }
             },
             onDragEnd: (_) {
-              box..isDragging = false;
-              // ..target = 200;
+              box
+                ..isDragging = false
+                ..target = 100.0 * box.position;
               boxData.value = <BoxData>[...boxData.value];
             },
             child: SpringBox(

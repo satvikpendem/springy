@@ -145,30 +145,28 @@ Widget boxes(
               /// If not the last box in the list
               // if (box.position != boxData.value.length - 1) {
               // TODO(satvikpendem): This sort might mess up the topology of the stack
-              if (box.target > (100 * box.position) + 50) {
+              if (box.position < boxData.value.length - 1 &&
+                  box.target > (100 * box.position) + 50) {
                 final List<BoxData> data = boxData.value
                   ..sort((BoxData a, BoxData b) =>
                       a.position.compareTo(b.position));
 
-                if (box.position < boxData.value.length - 1) {
-                  data[box.position + 1]
-                    ..target -= 100
-                    ..position -= 1;
-                  data[box.position].position += 1;
-                }
+                data[box.position + 1]
+                  ..target -= 100
+                  ..position -= 1;
+                data[box.position].position += 1;
 
                 boxData.value = <BoxData>[...data];
-              } else if (box.target <= (100 * box.position) - 50) {
+              } else if (box.position > 0 &&
+                  box.target <= (100 * box.position) - 50) {
                 final List<BoxData> data = boxData.value
                   ..sort((BoxData a, BoxData b) =>
                       a.position.compareTo(b.position));
 
-                if (box.position > 0) {
-                  data[box.position - 1]
-                    ..target += 100
-                    ..position += 1;
-                  data[box.position].position -= 1;
-                }
+                data[box.position - 1]
+                  ..target += 100
+                  ..position += 1;
+                data[box.position].position -= 1;
 
                 boxData.value = <BoxData>[...data];
               }

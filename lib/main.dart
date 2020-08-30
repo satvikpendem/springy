@@ -16,6 +16,7 @@ class BoxData {
   BoxData({
     @required this.color,
     @required this.target,
+    @required this.index,
   });
 
   /// [Color] of the box
@@ -23,6 +24,9 @@ class BoxData {
 
   /// Target of where the box should move
   double target;
+
+  /// Position in list
+  int index;
 
   @override
   String toString() {
@@ -73,9 +77,9 @@ Widget boxes(
   BuildContext context,
 ) {
   final ValueNotifier<List<BoxData>> boxData = useState(<BoxData>[
-    BoxData(color: Colors.red, target: 0),
-    BoxData(color: Colors.blue, target: 110),
-    BoxData(color: Colors.green, target: 220),
+    BoxData(color: Colors.red, target: 0, index: 0),
+    BoxData(color: Colors.blue, target: 100, index: 1),
+    BoxData(color: Colors.green, target: 200, index: 2),
   ]);
 
   final ValueNotifier<bool> isDragging = useState<bool>(false);
@@ -96,7 +100,6 @@ Widget boxes(
 
           return SpringTransition(
             key: ValueKey<BoxData>(box),
-            scaleFinalValue: 2,
             toX: (MediaQuery.of(context).size.width - 125) / 2,
             toY: box.target,
             suppressAnimation: isDragging.value,
@@ -117,8 +120,27 @@ Widget boxes(
                   ..remove(box)
                   ..add(box)
               ];
+
+              /// If not the last box in the list
+              if (box.index != boxData.value.length - 1) {
+                if (box.target > (100 * box.index) + 50) {
+                  final List<BoxData> tempData = boxData.value.toList()
+                    ..sort(
+                        (BoxData a, BoxData b) => a.index.compareTo(b.index));
+                  tempData[box.index + 1].target -= 100;
+                  tempData[box.index + 1].index -= 1;
+                  tempData[box.index].index += 1;
+
+                  boxData.value = <BoxData>[...tempData];
+                }
+              }
             },
-            child: SpringBox(color: box.color),
+            onDragEnd: (_) {
+              box.target = 300;
+              boxData.value = <BoxData>[...boxData.value];
+            },
+            child: SpringBox(
+                description: 'T: $index, P: ${box.index}', color: box.color),
           );
         },
       ),

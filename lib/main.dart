@@ -100,151 +100,153 @@ Widget boxes(
 
   // final ValueNotifier<bool> isDragging = useState<bool>(false);
 
-  return Stack(
-    children: <Widget>[
-      Padding(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).size.height,
-          right: MediaQuery.of(context).size.width,
-          left: MediaQuery.of(context).size.width,
+  return SingleChildScrollView(
+    child: Stack(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).size.height * 2,
+            right: MediaQuery.of(context).size.width,
+            left: MediaQuery.of(context).size.width,
+          ),
         ),
-      ),
-      ...List<Widget>.generate(
-        boxData.value.length,
-        (int index) {
-          final BoxData box = boxData.value[index];
+        ...List<Widget>.generate(
+          boxData.value.length,
+          (int index) {
+            final BoxData box = boxData.value[index];
 
-          return SpringTransition(
-            key: ValueKey<BoxData>(box),
-            toX: (MediaQuery.of(context).size.width - 125) / 2,
-            toY: box.target,
-            // suppressAnimation: isDragging.value,
-            suppressAnimation: box.isDragging,
-            onTapDown: (_) {
-              boxData.value = <BoxData>[
-                ...boxData.value
+            return SpringTransition(
+              key: ValueKey<BoxData>(box),
+              toX: (MediaQuery.of(context).size.width - 125) / 2,
+              toY: box.target,
+              // suppressAnimation: isDragging.value,
+              suppressAnimation: box.isDragging,
+              onTapDown: (_) {
+                boxData.value = <BoxData>[
+                  ...boxData.value
 
-                  /// Move box to top of [Stack]
-                  ..remove(box)
-                  ..add(box)
-              ];
-            },
-            onDragUpdate: (DragUpdateDetails details) {
-              box
-                ..isDragging = true
-                ..target += details.primaryDelta;
+                    /// Move box to top of [Stack]
+                    ..remove(box)
+                    ..add(box)
+                ];
+              },
+              onDragUpdate: (DragUpdateDetails details) {
+                box
+                  ..isDragging = true
+                  ..target += details.primaryDelta;
 
-              boxData.value = <BoxData>[
-                ...boxData.value
+                boxData.value = <BoxData>[
+                  ...boxData.value
 
-                  /// Move box to top of [Stack]
-                  ..remove(box)
-                  ..add(box)
-              ];
+                    /// Move box to top of [Stack]
+                    ..remove(box)
+                    ..add(box)
+                ];
 
-              // TODO(satvikpendem): Since we always add to the end of the stack, fix moving up
-              /// The issue occurs when a box is dragged up rather than down, as when going down the stack behavior
-              /// works fine, as we always add to the end of the stack. However, when we move up, we must actually
-              /// insert in reverse order as otherwise the items in the last position get the higher stack value.
+                // TODO(satvikpendem): Since we always add to the end of the stack, fix moving up
+                /// The issue occurs when a box is dragged up rather than down, as when going down the stack behavior
+                /// works fine, as we always add to the end of the stack. However, when we move up, we must actually
+                /// insert in reverse order as otherwise the items in the last position get the higher stack value.
 
-              /// If not the last box in the list
-              if (box.position < boxData.value.length - 1 &&
-                  box.target > (100 * box.position) + 50) {
-                // TODO(satvikpendem): This sort might mess up the topology of the stack
-                List<BoxData> data = boxData.value
-                  ..sort((BoxData a, BoxData b) =>
-                      a.position.compareTo(b.position));
+                /// If not the last box in the list
+                if (box.position < boxData.value.length - 1 &&
+                    box.target > (100 * box.position) + 50) {
+                  // TODO(satvikpendem): This sort might mess up the topology of the stack
+                  List<BoxData> data = boxData.value
+                    ..sort((BoxData a, BoxData b) =>
+                        a.position.compareTo(b.position));
 
-                /// Finds the box that should be below the dragging element but still above all others
-                BoxData secondaryBox;
+                  /// Finds the box that should be below the dragging element but still above all others
+                  BoxData secondaryBox;
 
-                if (details.primaryDelta > 0) {
-                  /// Moving down
-                  secondaryBox = data.firstWhere((BoxData element) =>
-                      element.position == box.position + 1);
-                } else {
-                  /// Moving up
-                  if (box.position > 0) {
-                    /// List bounds check
+                  if (details.primaryDelta > 0) {
+                    /// Moving down
+                    secondaryBox = data.firstWhere((BoxData element) =>
+                        element.position == box.position + 1);
+                  } else {
+                    /// Moving up
+                    if (box.position > 0) {
+                      /// List bounds check
+                      secondaryBox = data.firstWhere((BoxData element) =>
+                          element.position == box.position - 1);
+                    }
+                  }
+
+                  data[box.position + 1]
+                    ..target -= 100
+                    ..position -= 1;
+                  data[box.position].position += 1;
+
+                  if (secondaryBox != null) {
+                    /// Only reindex the secondary box after data's position has been set, not before
+                    data = <BoxData>[
+                      ...data
+                        ..remove(secondaryBox)
+                        ..add(secondaryBox)
+                    ];
+                  }
+
+                  boxData.value = <BoxData>[
+                    ...data
+                      ..remove(box)
+                      ..add(box)
+                  ];
+                } else if (box.position > 0 &&
+                    box.target <= (100 * box.position) - 50) {
+                  List<BoxData> data = boxData.value
+                    ..sort((BoxData a, BoxData b) =>
+                        a.position.compareTo(b.position));
+
+                  BoxData secondaryBox;
+
+                  if (details.primaryDelta > 0) {
+                    if (box.position < data.length - 1) {
+                      /// List bounds check
+                      secondaryBox = data.firstWhere((BoxData element) =>
+                          element.position == box.position + 1);
+                    }
+                  } else {
                     secondaryBox = data.firstWhere((BoxData element) =>
                         element.position == box.position - 1);
                   }
-                }
 
-                data[box.position + 1]
-                  ..target -= 100
-                  ..position -= 1;
-                data[box.position].position += 1;
+                  data[box.position - 1]
+                    ..target += 100
+                    ..position += 1;
+                  data[box.position].position -= 1;
 
-                if (secondaryBox != null) {
-                  /// Only reindex the secondary box after data's position has been set, not before
-                  data = <BoxData>[
-                    ...data
-                      ..remove(secondaryBox)
-                      ..add(secondaryBox)
-                  ];
-                }
-
-                boxData.value = <BoxData>[
-                  ...data
-                    ..remove(box)
-                    ..add(box)
-                ];
-              } else if (box.position > 0 &&
-                  box.target <= (100 * box.position) - 50) {
-                List<BoxData> data = boxData.value
-                  ..sort((BoxData a, BoxData b) =>
-                      a.position.compareTo(b.position));
-
-                BoxData secondaryBox;
-
-                if (details.primaryDelta > 0) {
-                  if (box.position < data.length - 1) {
-                    /// List bounds check
-                    secondaryBox = data.firstWhere((BoxData element) =>
-                        element.position == box.position + 1);
+                  if (secondaryBox != null) {
+                    /// Only reindex the secondary box after data's position has been set, not before
+                    data = <BoxData>[
+                      ...data
+                        ..remove(secondaryBox)
+                        ..add(secondaryBox)
+                    ];
                   }
-                } else {
-                  secondaryBox = data.firstWhere((BoxData element) =>
-                      element.position == box.position - 1);
-                }
 
-                data[box.position - 1]
-                  ..target += 100
-                  ..position += 1;
-                data[box.position].position -= 1;
-
-                if (secondaryBox != null) {
-                  /// Only reindex the secondary box after data's position has been set, not before
-                  data = <BoxData>[
+                  boxData.value = <BoxData>[
                     ...data
-                      ..remove(secondaryBox)
-                      ..add(secondaryBox)
+                      ..remove(box)
+                      ..add(box)
                   ];
                 }
-
-                boxData.value = <BoxData>[
-                  ...data
-                    ..remove(box)
-                    ..add(box)
-                ];
-              }
-              print(boxData.value);
-            },
-            onDragEnd: (_) {
-              box
-                ..isDragging = false
-                ..target = 100.0 * box.position;
-              boxData.value = <BoxData>[...boxData.value];
-            },
-            child: SpringBox(
-                description:
-                    'I: $index, P: ${box.position}, T: ${box.target.round()}',
-                color: box.color),
-          );
-        },
-      ),
-    ],
+                print(boxData.value);
+              },
+              onDragEnd: (_) {
+                box
+                  ..isDragging = false
+                  ..target = 100.0 * box.position;
+                boxData.value = <BoxData>[...boxData.value];
+              },
+              child: SpringBox(
+                  description:
+                      'I: $index, P: ${box.position}, T: ${box.target.round()}',
+                  color: box.color),
+            );
+          },
+        ),
+      ],
+    ),
   );
 }
 

@@ -152,7 +152,7 @@ Widget boxes(
                 if (box.position < boxData.value.length - 1 &&
                     box.target > (100 * box.position) + 50) {
                   // TODO(satvikpendem): This sort might mess up the topology of the stack
-                  List<BoxData> data = boxData.value
+                  final List<BoxData> data = boxData.value
                     ..sort((BoxData a, BoxData b) =>
                         a.position.compareTo(b.position));
 
@@ -179,11 +179,9 @@ Widget boxes(
 
                   if (secondaryBox != null) {
                     /// Only reindex the secondary box after data's position has been set, not before
-                    data = <BoxData>[
-                      ...data
-                        ..remove(secondaryBox)
-                        ..add(secondaryBox)
-                    ];
+                    data
+                      ..remove(secondaryBox)
+                      ..add(secondaryBox);
                   }
 
                   boxData.value = <BoxData>[
@@ -193,21 +191,26 @@ Widget boxes(
                   ];
                 } else if (box.position > 0 &&
                     box.target <= (100 * box.position) - 50) {
-                  List<BoxData> data = boxData.value
+                  final List<BoxData> data = boxData.value
                     ..sort((BoxData a, BoxData b) =>
                         a.position.compareTo(b.position));
 
-                  BoxData secondaryBox;
+                  // BoxData secondaryBox;
+                  List<BoxData> secondaryBoxes;
 
                   if (details.primaryDelta > 0) {
                     if (box.position < data.length - 1) {
                       /// List bounds check
-                      secondaryBox = data.firstWhere((BoxData element) =>
-                          element.position == box.position + 1);
+                      secondaryBoxes = data
+                          .where((BoxData element) =>
+                              element.position >= box.position + 1)
+                          .toList();
                     }
                   } else {
-                    secondaryBox = data.firstWhere((BoxData element) =>
-                        element.position == box.position - 1);
+                    secondaryBoxes = data
+                        .where((BoxData element) =>
+                            element.position <= box.position - 1)
+                        .toList();
                   }
 
                   data[box.position - 1]
@@ -215,13 +218,15 @@ Widget boxes(
                     ..position += 1;
                   data[box.position].position -= 1;
 
-                  if (secondaryBox != null) {
+                  if (secondaryBoxes.isNotEmpty) {
                     /// Only reindex the secondary box after data's position has been set, not before
-                    data = <BoxData>[
-                      ...data
+
+                    print(secondaryBoxes);
+                    secondaryBoxes.reversed.forEach((BoxData secondaryBox) {
+                      data
                         ..remove(secondaryBox)
-                        ..add(secondaryBox)
-                    ];
+                        ..add(secondaryBox);
+                    });
                   }
 
                   boxData.value = <BoxData>[
@@ -230,7 +235,6 @@ Widget boxes(
                       ..add(box)
                   ];
                 }
-                print(boxData.value);
               },
               onDragEnd: (_) {
                 box

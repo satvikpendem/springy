@@ -98,8 +98,6 @@ Widget boxes(
     ),
   );
 
-  // final ValueNotifier<bool> isDragging = useState<bool>(false);
-
   return SingleChildScrollView(
     child: Stack(
       children: <Widget>[
@@ -119,7 +117,6 @@ Widget boxes(
               key: ValueKey<BoxData>(box),
               toX: (MediaQuery.of(context).size.width - 125) / 2,
               toY: box.target,
-              // suppressAnimation: isDragging.value,
               suppressAnimation: box.isDragging,
               onTapDown: (_) {
                 boxData.value = <BoxData>[
@@ -143,11 +140,6 @@ Widget boxes(
                     ..add(box)
                 ];
 
-                // TODO(satvikpendem): Since we always add to the end of the stack, fix moving up
-                /// The issue occurs when a box is dragged up rather than down, as when going down the stack behavior
-                /// works fine, as we always add to the end of the stack. However, when we move up, we must actually
-                /// insert in reverse order as otherwise the items in the last position get the higher stack value.
-
                 /// If not the last box in the list
                 if (box.position < boxData.value.length - 1 &&
                     box.target > (100 * box.position) + 50) {
@@ -159,18 +151,8 @@ Widget boxes(
                   /// Finds the box that should be below the dragging element but still above all others
                   BoxData secondaryBox;
 
-                  if (details.primaryDelta > 0) {
-                    /// Moving down
-                    secondaryBox = data.firstWhere((BoxData element) =>
-                        element.position == box.position + 1);
-                  } else {
-                    /// Moving up
-                    if (box.position > 0) {
-                      /// List bounds check
-                      secondaryBox = data.firstWhere((BoxData element) =>
-                          element.position == box.position - 1);
-                    }
-                  }
+                  secondaryBox = data.firstWhere((BoxData element) =>
+                      element.position == box.position + 1);
 
                   data[box.position + 1]
                     ..target -= 100
@@ -195,33 +177,25 @@ Widget boxes(
                     ..sort((BoxData a, BoxData b) =>
                         a.position.compareTo(b.position));
 
-                  // BoxData secondaryBox;
                   List<BoxData> secondaryBoxes;
 
-                  if (details.primaryDelta > 0) {
-                    if (box.position < data.length - 1) {
-                      /// List bounds check
-                      secondaryBoxes = data
-                          .where((BoxData element) =>
-                              element.position >= box.position + 1)
-                          .toList();
-                    }
-                  } else {
-                    secondaryBoxes = data
-                        .where((BoxData element) =>
-                            element.position <= box.position - 1)
-                        .toList();
-                  }
+                  secondaryBoxes = data
+                      .where((BoxData element) =>
+                          element.position >= box.position - 1)
+                      .toList();
 
                   data[box.position - 1]
                     ..target += 100
                     ..position += 1;
                   data[box.position].position -= 1;
 
+                  /// Only reindex the secondary boxes after data's position has been set, not before
                   if (secondaryBoxes.isNotEmpty) {
-                    /// Only reindex the secondary box after data's position has been set, not before
-
-                    print(secondaryBoxes);
+                    /// Since we always add to the end of the stack, there is an issue when moving up.
+                    /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
+                    /// behavior works fine, as we always add to the end of the stack. However, when we move up,
+                    /// we must actually insert in reverse order as otherwise the items in the last position get 
+                    /// the higher stack value.
                     secondaryBoxes.reversed.forEach((BoxData secondaryBox) {
                       data
                         ..remove(secondaryBox)

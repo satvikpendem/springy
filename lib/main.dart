@@ -36,15 +36,15 @@ class BoxData {
   String toString() {
     final List<String> list = <String>[];
 
-    if (color == Colors.blue) {
-      list.add('blue');
-    } else if (color == Colors.red) {
-      list.add('red');
-    } else if (color == Colors.green) {
-      list.add('green');
-    }
+    // if (color == Colors.blue) {
+    //   list.add('blue');
+    // } else if (color == Colors.red) {
+    //   list.add('red');
+    // } else if (color == Colors.green) {
+    //   list.add('green');
+    // }
 
-    list.add(target.toString());
+    list..add(target.toString())..add(position.toString());
 
     return list.toString();
   }
@@ -134,55 +134,102 @@ Widget boxes(
                 ..isDragging = true
                 ..target += details.primaryDelta;
 
-              // BoxData secondaryBox;
-
-              // if (details.primaryDelta > 0) {
-              //   if (box.position < boxData.value.length - 2) {
-              //     secondaryBox = boxData.value.firstWhere((BoxData element) =>
-              //         element.position == box.position + 1);
-              //   }
-              // } else {
-              //   if (box.position > 0) {
-              //     secondaryBox = boxData.value.firstWhere((BoxData element) =>
-              //         element.position == box.position - 1);
-              //   }
-              // }
-
               boxData.value = <BoxData>[
                 ...boxData.value
-                  // ..remove(secondaryBox)
-                  // ..add(secondaryBox)
+
+                  /// Move box to top of [Stack]
                   ..remove(box)
                   ..add(box)
               ];
 
+              // TODO(satvikpendem): Since we always add to the end of the stack, fix moving up
+              /// The issue occurs when a box is dragged up rather than down, as when going down the stack behavior
+              /// works fine, as we always add to the end of the stack. However, when we move up, we must actually
+              /// insert in reverse order as otherwise the items in the last position get the higher stack value.
+
               /// If not the last box in the list
-              // TODO(satvikpendem): This sort might mess up the topology of the stack
               if (box.position < boxData.value.length - 1 &&
                   box.target > (100 * box.position) + 50) {
-                final List<BoxData> data = boxData.value
+                // TODO(satvikpendem): This sort might mess up the topology of the stack
+                List<BoxData> data = boxData.value
                   ..sort((BoxData a, BoxData b) =>
                       a.position.compareTo(b.position));
+
+                /// Finds the box that should be below the dragging element but still above all others
+                BoxData secondaryBox;
+
+                if (details.primaryDelta > 0) {
+                  /// Moving down
+                  secondaryBox = data.firstWhere((BoxData element) =>
+                      element.position == box.position + 1);
+                } else {
+                  /// Moving up
+                  if (box.position > 0) {
+                    /// List bounds check
+                    secondaryBox = data.firstWhere((BoxData element) =>
+                        element.position == box.position - 1);
+                  }
+                }
 
                 data[box.position + 1]
                   ..target -= 100
                   ..position -= 1;
                 data[box.position].position += 1;
 
-                boxData.value = <BoxData>[...data];
+                if (secondaryBox != null) {
+                  /// Only reindex the secondary box after data's position has been set, not before
+                  data = <BoxData>[
+                    ...data
+                      ..remove(secondaryBox)
+                      ..add(secondaryBox)
+                  ];
+                }
+
+                boxData.value = <BoxData>[
+                  ...data
+                    ..remove(box)
+                    ..add(box)
+                ];
               } else if (box.position > 0 &&
                   box.target <= (100 * box.position) - 50) {
-                final List<BoxData> data = boxData.value
+                List<BoxData> data = boxData.value
                   ..sort((BoxData a, BoxData b) =>
                       a.position.compareTo(b.position));
+
+                BoxData secondaryBox;
+
+                if (details.primaryDelta > 0) {
+                  if (box.position < data.length - 1) {
+                    /// List bounds check
+                    secondaryBox = data.firstWhere((BoxData element) =>
+                        element.position == box.position + 1);
+                  }
+                } else {
+                  secondaryBox = data.firstWhere((BoxData element) =>
+                      element.position == box.position - 1);
+                }
 
                 data[box.position - 1]
                   ..target += 100
                   ..position += 1;
                 data[box.position].position -= 1;
 
-                boxData.value = <BoxData>[...data];
+                if (secondaryBox != null) {
+                  /// Only reindex the secondary box after data's position has been set, not before
+                  data = <BoxData>[
+                    ...data
+                      ..remove(secondaryBox)
+                      ..add(secondaryBox)
+                  ];
+                }
+
+                boxData.value = <BoxData>[
+                  ...data
+                    ..remove(box)
+                    ..add(box)
+                ];
               }
+              print(boxData.value);
             },
             onDragEnd: (_) {
               box

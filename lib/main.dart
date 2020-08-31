@@ -15,9 +15,10 @@ void main(List<String> args) => runApp(const App());
 class BoxData {
   /// Default Constructor
   BoxData({
-    @required this.color,
     @required this.target,
     @required this.position,
+    this.height = 100,
+    this.color = Colors.blue,
     this.isDragging = false,
   });
 
@@ -30,20 +31,15 @@ class BoxData {
   /// Position in list
   int position;
 
+  /// Height of element
+  double height;
+
   /// Whether this element is being dragged, for suppressing animation if so
   bool isDragging;
 
   @override
   String toString() {
     final List<String> list = <String>[target.toString(), position.toString()];
-
-    // if (color == Colors.blue) {
-    //   list.add('blue');
-    // } else if (color == Colors.red) {
-    //   list.add('red');
-    // } else if (color == Colors.green) {
-    //   list.add('green');
-    // }
 
     return list.toString();
   }
@@ -86,16 +82,30 @@ Widget app() => MaterialApp(
 Widget boxes(
   BuildContext context,
 ) {
-  final ValueNotifier<List<BoxData>> boxData = useState(
-    List<BoxData>.generate(
+  List<BoxData> generateBoxList() {
+    /// Keep track of overall height
+    double cumulativeHeight = 0;
+
+    return List<BoxData>.generate(
       kNumBoxes,
       (int index) => BoxData(
         color: kColorList[index % kColorList.length],
-        target: index * 100.0,
+
+        /// Initially set the [target] to 0
+        target: 0,
         position: index,
       ),
-    ),
-  );
+    )..map((BoxData element) {
+        /// Set the box's [target] to be the [cumulativeHeight] so far, and increment it
+        element.target = cumulativeHeight;
+        cumulativeHeight += element.height;
+      }).toList();
+  }
+
+  final List<BoxData> _tempBoxData = generateBoxList();
+
+  final ValueNotifier<List<BoxData>> boxData =
+      useState<List<BoxData>>(_tempBoxData);
 
   return SingleChildScrollView(
     child: Stack(

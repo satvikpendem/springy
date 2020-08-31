@@ -34,7 +34,7 @@ class BoxData {
 
   @override
   String toString() {
-    final List<String> list = <String>[];
+    final List<String> list = <String>[target.toString(), position.toString()];
 
     // if (color == Colors.blue) {
     //   list.add('blue');
@@ -43,8 +43,6 @@ class BoxData {
     // } else if (color == Colors.green) {
     //   list.add('green');
     // }
-
-    list..add(target.toString())..add(position.toString());
 
     return list.toString();
   }
@@ -140,6 +138,7 @@ Widget boxes(
                     ..add(box)
                 ];
 
+                // TODO(satvikpendem): Refactor into one
                 /// If not the last box in the list
                 if (box.position < boxData.value.length - 1 &&
                     box.target > (100 * box.position) + 50) {
@@ -194,7 +193,7 @@ Widget boxes(
                     /// Since we always add to the end of the stack, there is an issue when moving up.
                     /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
                     /// behavior works fine, as we always add to the end of the stack. However, when we move up,
-                    /// we must actually insert in reverse order as otherwise the items in the last position get 
+                    /// we must actually insert in reverse order as otherwise the items in the last position get
                     /// the higher stack value.
                     secondaryBoxes.reversed.forEach((BoxData secondaryBox) {
                       data

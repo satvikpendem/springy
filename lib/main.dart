@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 
+import 'util/list.dart';
 import 'util/spring/spring_box.dart';
 import 'util/spring/spring_transition.dart';
 
@@ -118,11 +119,8 @@ Widget boxes(
               suppressAnimation: box.isDragging,
               onTapDown: (_) {
                 boxData.value = <BoxData>[
-                  ...boxData.value
-
-                    /// Move box to top of [Stack]
-                    ..remove(box)
-                    ..add(box)
+                  /// Move box to top of [Stack]
+                  ...boxData.value.moveToEnd(box)
                 ];
               },
               onDragUpdate: (DragUpdateDetails details) {
@@ -131,83 +129,72 @@ Widget boxes(
                   ..target += details.primaryDelta;
 
                 boxData.value = <BoxData>[
-                  ...boxData.value
-
-                    /// Move box to top of [Stack]
-                    ..remove(box)
-                    ..add(box)
+                  /// Move box to top of [Stack]
+                  ...boxData.value.moveToEnd(box)
                 ];
 
-                // TODO(satvikpendem): Refactor into one
+                List<BoxData> data;
+
+                List<BoxData> secondaryBoxes;
+
+                double targetChange = 100;
+                int positionChange = 1;
+
+                /// Moving down
                 /// If not the last box in the list
                 if (box.position < boxData.value.length - 1 &&
                     box.target > (100 * box.position) + 50) {
-                  // TODO(satvikpendem): This sort might mess up the topology of the stack
-                  final List<BoxData> data = boxData.value
+                  data = boxData.value
                     ..sort((BoxData a, BoxData b) =>
                         a.position.compareTo(b.position));
 
-                  /// Finds the box that should be below the dragging element but still above all others
-                  BoxData secondaryBox;
-
-                  secondaryBox = data.firstWhere((BoxData element) =>
-                      element.position == box.position + 1);
-
-                  data[box.position + 1]
-                    ..target -= 100
-                    ..position -= 1;
-                  data[box.position].position += 1;
-
-                  if (secondaryBox != null) {
-                    /// Only reindex the secondary box after data's position has been set, not before
-                    data
-                      ..remove(secondaryBox)
-                      ..add(secondaryBox);
-                  }
-
-                  boxData.value = <BoxData>[
-                    ...data
-                      ..remove(box)
-                      ..add(box)
-                  ];
-                } else if (box.position > 0 &&
-                    box.target <= (100 * box.position) - 50) {
-                  final List<BoxData> data = boxData.value
-                    ..sort((BoxData a, BoxData b) =>
-                        a.position.compareTo(b.position));
-
-                  List<BoxData> secondaryBoxes;
-
+                  /// Finds boxes that should be topologically below the dragging element but still above all others
                   secondaryBoxes = data
                       .where((BoxData element) =>
-                          element.position >= box.position - 1)
+                          element.position <= box.position + positionChange)
                       .toList();
 
-                  data[box.position - 1]
-                    ..target += 100
-                    ..position += 1;
-                  data[box.position].position -= 1;
-
-                  /// Only reindex the secondary boxes after data's position has been set, not before
-                  if (secondaryBoxes.isNotEmpty) {
-                    /// Since we always add to the end of the stack, there is an issue when moving up.
-                    /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
-                    /// behavior works fine, as we always add to the end of the stack. However, when we move up,
-                    /// we must actually insert in reverse order as otherwise the items in the last position get
-                    /// the higher stack value.
-                    secondaryBoxes.reversed.forEach((BoxData secondaryBox) {
-                      data
-                        ..remove(secondaryBox)
-                        ..add(secondaryBox);
-                    });
-                  }
-
-                  boxData.value = <BoxData>[
-                    ...data
-                      ..remove(box)
-                      ..add(box)
-                  ];
+                  targetChange = -targetChange;
+                  positionChange = -positionChange;
                 }
+
+                /// Moving up
+                /// If not the first box in the list
+                else if (box.position > 0 &&
+                    box.target <= (100 * box.position) - 50) {
+                  data = boxData.value
+                    ..sort((BoxData a, BoxData b) =>
+                        a.position.compareTo(b.position));
+
+                  /// Finds boxes that should be topologically below the dragging element but still above all others
+                  ///
+                  /// Since we always add to the end of the stack, there is an issue when moving up.
+                  /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
+                  /// behavior works fine, as we always add to the end of the stack. However, when we move up,
+                  /// we must actually insert in reverse order as otherwise the items in the last position get
+                  /// the higher stack value.
+                  secondaryBoxes = data
+                      .where((BoxData element) =>
+                          element.position >= box.position - positionChange)
+                      .toList()
+                      .reversed
+                      .toList();
+                }
+
+                /// When moving down, [positionChange] is -1, so in effect, box.position - positionChange becomes
+                /// box.position + 1, meaning we change the properties of the next box, and when moving up,
+                /// [positionChange] becomes (or rather, stays at) -1, changing the properties of the previous box.
+                data[box.position - positionChange]
+                  ..target += targetChange
+                  ..position += positionChange;
+                data[box.position].position -= positionChange;
+
+                /// Only reindex the secondary boxes after data's position has been set, not before
+                if (secondaryBoxes.isNotEmpty) {
+                  secondaryBoxes.forEach(data.moveToEnd);
+                }
+
+                boxData.value = <BoxData>[...data.moveToEnd(box)];
               },
               onDragEnd: (_) {
                 box

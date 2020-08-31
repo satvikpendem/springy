@@ -29,8 +29,10 @@ Widget springTransition(
   Key key, {
   @required Widget child,
   Spring spring,
+
+  /// Assume no scaling or translating as a default
   double scaleInitialValue = 1,
-  double scaleFinalValue = 1.25,
+  double scaleFinalValue = 1,
   double toX = 0,
   double toY = 0,
   bool suppressAnimation = false,

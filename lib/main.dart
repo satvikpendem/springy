@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 
-import 'util/list.dart';
+import 'util/extensions/list.dart';
 import 'util/spring/spring_box.dart';
 import 'util/spring/spring_transition.dart';
 
@@ -12,9 +12,9 @@ part 'main.g.dart';
 void main(List<String> args) => runApp(const App());
 
 /// Contains data about each box
-class BoxData {
+class Box {
   /// Default Constructor
-  BoxData({
+  Box({
     @required this.target,
     @required this.position,
     this.height = 100,
@@ -72,7 +72,9 @@ Widget app() => MaterialApp(
       ),
       home: const SafeArea(
         child: Scaffold(
-          body: Boxes(),
+          body: Center(
+            child: Boxes(),
+          ),
         ),
       ),
     );
@@ -82,30 +84,32 @@ Widget app() => MaterialApp(
 Widget boxes(
   BuildContext context,
 ) {
-  List<BoxData> generateBoxList() {
+  double sumHeight(List<Box> list) => list.fold<double>(
+      0, (double previousValue, Box element) => previousValue + element.height);
+
+  List<Box> generateBoxList() {
     /// Keep track of overall height
     double cumulativeHeight = 0;
 
-    return List<BoxData>.generate(
+    return List<Box>.generate(
       kNumBoxes,
-      (int index) => BoxData(
+      (int index) => Box(
         color: kColorList[index % kColorList.length],
 
         /// Initially set the [target] to 0
         target: 0,
         position: index,
       ),
-    )..map((BoxData element) {
+    )..map((Box element) {
         /// Set the box's [target] to be the [cumulativeHeight] so far, and increment it
         element.target = cumulativeHeight;
         cumulativeHeight += element.height;
       }).toList();
   }
 
-  final List<BoxData> _tempBoxData = generateBoxList();
+  final List<Box> _tempBoxData = generateBoxList();
 
-  final ValueNotifier<List<BoxData>> boxData =
-      useState<List<BoxData>>(_tempBoxData);
+  final ValueNotifier<List<Box>> boxData = useState<List<Box>>(_tempBoxData);
 
   return SingleChildScrollView(
     child: Stack(
@@ -120,15 +124,15 @@ Widget boxes(
         ...List<Widget>.generate(
           boxData.value.length,
           (int index) {
-            final BoxData box = boxData.value[index];
+            final Box box = boxData.value[index];
 
             return SpringTransition(
-              key: ValueKey<BoxData>(box),
+              key: ValueKey<Box>(box),
               toX: (MediaQuery.of(context).size.width - 125) / 2,
               toY: box.target,
               suppressAnimation: box.isDragging,
               onTapDown: (_) {
-                boxData.value = <BoxData>[
+                boxData.value = <Box>[
                   /// Move box to top of [Stack]
                   ...boxData.value.moveToEnd(box)
                 ];
@@ -138,14 +142,14 @@ Widget boxes(
                   ..isDragging = true
                   ..target += details.primaryDelta;
 
-                boxData.value = <BoxData>[
+                boxData.value = <Box>[
                   /// Move box to top of [Stack]
                   ...boxData.value.moveToEnd(box)
                 ];
 
-                List<BoxData> data;
+                List<Box> data;
 
-                List<BoxData> secondaryBoxes;
+                List<Box> secondaryBoxes;
 
                 double targetChange = 100;
                 int positionChange = 1;
@@ -155,12 +159,11 @@ Widget boxes(
                 if (box.position < boxData.value.length - 1 &&
                     box.target > (100 * box.position) + 50) {
                   data = boxData.value
-                    ..sort((BoxData a, BoxData b) =>
-                        a.position.compareTo(b.position));
+                    ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
                   /// Finds boxes that should be topologically below the dragging element but still above all others
                   secondaryBoxes = data
-                      .where((BoxData element) =>
+                      .where((Box element) =>
                           element.position <= box.position + positionChange)
                       .toList();
 
@@ -173,8 +176,7 @@ Widget boxes(
                 else if (box.position > 0 &&
                     box.target <= (100 * box.position) - 50) {
                   data = boxData.value
-                    ..sort((BoxData a, BoxData b) =>
-                        a.position.compareTo(b.position));
+                    ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
                   /// Finds boxes that should be topologically below the dragging element but still above all others
                   ///
@@ -184,7 +186,7 @@ Widget boxes(
                   /// we must actually insert in reverse order as otherwise the items in the last position get
                   /// the higher stack value.
                   secondaryBoxes = data
-                      .where((BoxData element) =>
+                      .where((Box element) =>
                           element.position >= box.position - positionChange)
                       .toList()
                       .reversed
@@ -204,13 +206,13 @@ Widget boxes(
                   secondaryBoxes.forEach(data.moveToEnd);
                 }
 
-                boxData.value = <BoxData>[...data.moveToEnd(box)];
+                boxData.value = <Box>[...data.moveToEnd(box)];
               },
               onDragEnd: (_) {
                 box
                   ..isDragging = false
                   ..target = 100.0 * box.position;
-                boxData.value = <BoxData>[...boxData.value];
+                boxData.value = <Box>[...boxData.value];
               },
               child: SpringBox(
                   description:

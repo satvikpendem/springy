@@ -193,20 +193,22 @@ Widget boxes(
                       .toList();
                 }
 
-                /// When moving down, [positionChange] is -1, so in effect, box.position - positionChange becomes
-                /// box.position + 1, meaning we change the properties of the next box, and when moving up,
-                /// [positionChange] becomes (or rather, stays at) -1, changing the properties of the previous box.
-                data[box.position - positionChange]
-                  ..target += targetChange
-                  ..position += positionChange;
-                data[box.position].position -= positionChange;
+                if (data != null && data.isNotEmpty) {
+                  /// When moving down, [positionChange] is -1, so in effect, box.position - positionChange becomes
+                  /// box.position + 1, meaning we change the properties of the next box, and when moving up,
+                  /// [positionChange] becomes (or rather, stays at) -1, changing the properties of the previous box.
+                  data[box.position - positionChange]
+                    ..target += targetChange
+                    ..position += positionChange;
+                  data[box.position].position -= positionChange;
 
-                /// Only reindex the secondary boxes after data's position has been set, not before
-                if (secondaryBoxes.isNotEmpty) {
-                  secondaryBoxes.forEach(data.moveToEnd);
+                  /// Only reindex the secondary boxes after data's position has been set, not before
+                  if (secondaryBoxes != null && secondaryBoxes.isNotEmpty) {
+                    secondaryBoxes.forEach(data.moveToEnd);
+                  }
+
+                  boxData.value = <Box>[...data.moveToEnd(box)];
                 }
-
-                boxData.value = <Box>[...data.moveToEnd(box)];
               },
               onDragEnd: (_) {
                 box

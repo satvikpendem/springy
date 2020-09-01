@@ -59,6 +59,9 @@ const List<Color> kColorList = <Color>[
 /// Number of boxes to generate
 const int kNumBoxes = 10;
 
+/// Heights to use for testing
+const List<double> kHeightList = [100, 200, 300];
+
 /// App
 @hwidget
 Widget app() => MaterialApp(
@@ -99,7 +102,7 @@ Widget boxes(
         /// Initially set the [target] to 0
         target: 0,
         position: index,
-        height: 200,
+        height: kHeightList[index % kHeightList.length],
       ),
     )..map((Box element) {
         /// Set the box's [target] to be the [cumulativeHeight] so far, and increment it
@@ -108,9 +111,8 @@ Widget boxes(
       }).toList();
   }
 
-  final List<Box> _tempBoxData = generateBoxList();
-
-  final ValueNotifier<List<Box>> boxData = useState<List<Box>>(_tempBoxData);
+  final ValueNotifier<List<Box>> boxData =
+      useState<List<Box>>(generateBoxList());
 
   void handleTapDown(Box box) {
     boxData.value = <Box>[
@@ -227,8 +229,8 @@ Widget boxes(
 
             return SpringTransition(
               key: ValueKey<Box>(box),
-              finalScale: 1.25,
-              toX: (MediaQuery.of(context).size.width - 125) / 2,
+              finalScale: 1.1,
+              toX: (MediaQuery.of(context).size.width) * (3 / 8),
               toY: box.target,
               suppressAnimation: box.isDragging,
               onTapDown: (_) => handleTapDown(box),
@@ -237,6 +239,7 @@ Widget boxes(
               onDragEnd: (_) => handleDragEnd(box),
               child: SpringBox(
                   height: box.height,
+                  width: 400,
                   description:
                       'I: $index, P: ${box.position}, T: ${box.target.round()}',
                   color: box.color),

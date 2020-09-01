@@ -39,6 +39,8 @@ Widget springTransition(
   void Function(TapDownDetails) onTapDown,
   void Function(TapUpDetails) onTapUp,
   void Function() onTapCancel,
+  void Function(LongPressStartDetails) onLongPressStart,
+  void Function(LongPressEndDetails) onLongPressEnd,
   void Function(DragStartDetails) onDragStart,
   void Function(DragUpdateDetails) onDragUpdate,
   void Function(DragEndDetails) onDragEnd,
@@ -75,6 +77,14 @@ Widget springTransition(
       },
       onTapCancel: () {
         (onTapCancel ??= () {})();
+        scale.value = initialScale;
+      },
+      onLongPressStart: (LongPressStartDetails details) {
+        (onLongPressStart ??= (LongPressStartDetails _) {})(details);
+        scale.value = finalScale;
+      },
+      onLongPressEnd: (LongPressEndDetails details) {
+        (onLongPressEnd ??= (LongPressEndDetails _) {})(details);
         scale.value = initialScale;
       },
       onVerticalDragStart: (DragStartDetails details) {

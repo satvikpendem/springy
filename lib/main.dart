@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -60,9 +62,10 @@ const List<Color> kColorList = <Color>[
 const int kNumBoxes = 10;
 
 /// Heights to use for testing
-const List<double> kHeightList = [100, 200, 300];
+const List<double> kHeightList = <double>[100, 200, 300];
 
-const double kWidth = 300;
+/// Max width to use for boxes
+const double kMaxWidth = 300;
 
 /// App
 @hwidget
@@ -176,8 +179,6 @@ Widget boxes(
     /// If not the first box in the list
     else if (box.position > 0 &&
         box.target <= sumHeight(sub) - positions[box.position - 1].height / 2) {
-      final List<Box> sub = positions.sublist(0, box.position);
-
       data = boxData.value
         ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
@@ -228,11 +229,13 @@ Widget boxes(
           boxData.value.length,
           (int index) {
             final Box box = boxData.value[index];
+            final double width =
+                max(MediaQuery.of(context).size.width / 2, kMaxWidth);
 
             return SpringTransition(
               key: ValueKey<Box>(box),
               finalScale: 1.1,
-              toX: (MediaQuery.of(context).size.width - kWidth) / 2,
+              toX: (MediaQuery.of(context).size.width - width) / 2,
               toY: box.target,
               suppressAnimation: box.isDragging,
               onTapDown: (_) => handleTapDown(box),
@@ -241,7 +244,7 @@ Widget boxes(
               onDragEnd: (_) => handleDragEnd(box),
               child: SpringBox(
                   height: box.height,
-                  width: kWidth,
+                  width: width,
                   description:
                       'I: $index, P: ${box.position}, T: ${box.target.round()}',
                   color: box.color),

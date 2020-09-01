@@ -143,60 +143,53 @@ Widget boxes(
 
     List<Box> secondaryBoxes;
 
-    double targetChange = 100;
+    double targetChange = box.height;
     int positionChange = 1;
 
     final List<Box> positions = boxData.value.toList()
       ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
-    /// Moving down
-    /// If not the last box in the list
     final List<Box> sub = positions.sublist(0, box.position);
 
-    if (box.position > 0 && box.position < boxData.value.length - 1) {
-      if (box.target >
-          sumHeight(sub) + positions[box.position + 1].height / 2) {
-        data = boxData.value
-          ..sort((Box a, Box b) => a.position.compareTo(b.position));
+    /// Moving down
+    /// If not the last box in the list
+    if (box.position < boxData.value.length - 1 &&
+        box.target > sumHeight(sub) + positions[box.position + 1].height / 2) {
+      data = boxData.value
+        ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
-        /// Finds boxes that should be topologically below the dragging element but still above all others
-        secondaryBoxes = data
-            .where((Box element) =>
-                element.position <= box.position + positionChange)
-            .toList();
+      /// Finds boxes that should be topologically below the dragging element but still above all others
+      secondaryBoxes = data
+          .where((Box element) =>
+              element.position <= box.position + positionChange)
+          .toList();
 
-        targetChange = -targetChange;
-        positionChange = -positionChange;
-      }
+      targetChange = -targetChange;
+      positionChange = -positionChange;
+    }
 
-      /// Moving up
-      /// If not the first box in the list
-      else if (box.target <=
-          sumHeight(sub) - positions[box.position - 1].height / 2) {
-        final List<Box> sub = positions.sublist(0, box.position);
+    /// Moving up
+    /// If not the first box in the list
+    else if (box.position > 0 &&
+        box.target <= sumHeight(sub) - positions[box.position - 1].height / 2) {
+      final List<Box> sub = positions.sublist(0, box.position);
 
-        print(sub);
+      data = boxData.value
+        ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
-        // if (box.target <=
-        //     sumHeight(sub) - positions[box.position - 1].height / 2) {
-        data = boxData.value
-          ..sort((Box a, Box b) => a.position.compareTo(b.position));
-
-        /// Finds boxes that should be topologically below the dragging element but still above all others
-        ///
-        /// Since we always add to the end of the stack, there is an issue when moving up.
-        /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
-        /// behavior works fine, as we always add to the end of the stack. However, when we move up,
-        /// we must actually insert in reverse order as otherwise the items in the last position get
-        /// the higher stack value.
-        secondaryBoxes = data
-            .where((Box element) =>
-                element.position >= box.position - positionChange)
-            .toList()
-            .reversed
-            .toList();
-        // }
-      }
+      /// Finds boxes that should be topologically below the dragging element but still above all others
+      ///
+      /// Since we always add to the end of the stack, there is an issue when moving up.
+      /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
+      /// behavior works fine, as we always add to the end of the stack. However, when we move up,
+      /// we must actually insert in reverse order as otherwise the items in the last position get
+      /// the higher stack value.
+      secondaryBoxes = data
+          .where((Box element) =>
+              element.position >= box.position - positionChange)
+          .toList()
+          .reversed
+          .toList();
     }
 
     if (data != null && data.isNotEmpty) {

@@ -69,7 +69,7 @@ Widget box(
   @required double target,
 }) =>
     SpringTransition(
-      scaleFinalValue: 2,
+      finalScale: 2,
       toX: MediaQuery.of(context).size.width / 2,
       toY: target,
       child: SpringBox(

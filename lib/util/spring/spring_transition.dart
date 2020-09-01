@@ -15,7 +15,7 @@ part 'spring_transition.g.dart';
 ///
 /// [scaleInitialValue]: Value to start the scale at, generally set to 1
 ///
-/// [scaleFinalValue]: Value to finish scaling at. This can be less than the [scaleInitialValue] if desired
+/// [scaleFinalValue]: Value to finish scaling at. This can be less than the [initialScale] if desired
 ///
 /// [child]: The child to scale
 ///
@@ -31,8 +31,8 @@ Widget springTransition(
   Spring spring,
 
   /// Assume no scaling or translating as a default
-  double scaleInitialValue = 1,
-  double scaleFinalValue = 1,
+  double initialScale = 1,
+  double finalScale = 1,
   double toX = 0,
   double toY = 0,
   bool suppressAnimation = false,
@@ -49,7 +49,7 @@ Widget springTransition(
   assert(spring.description.mass > 0, 'Mass must be greater than 0');
 
   /// The scale value to keep track of, starting at [initialValue]
-  final ValueNotifier<double> scale = useState<double>(scaleInitialValue);
+  final ValueNotifier<double> scale = useState<double>(initialScale);
 
   final AnimationController x = useSpringAnimation(
     toX,
@@ -67,31 +67,31 @@ Widget springTransition(
     child: GestureDetector(
       onTapDown: (TapDownDetails details) {
         (onTapDown ??= (TapDownDetails _) {})(details);
-        scale.value = scaleFinalValue;
+        scale.value = finalScale;
       },
       onTapUp: (TapUpDetails details) {
         (onTapUp ??= (TapUpDetails _) {})(details);
-        scale.value = scaleInitialValue;
+        scale.value = initialScale;
       },
       onTapCancel: () {
         (onTapCancel ??= () {})();
-        scale.value = scaleInitialValue;
+        scale.value = initialScale;
       },
       onVerticalDragStart: (DragStartDetails details) {
         (onDragStart ?? (DragStartDetails _) {})(details);
-        scale.value = scaleFinalValue;
+        scale.value = finalScale;
       },
       onVerticalDragUpdate: (DragUpdateDetails details) {
         (onDragUpdate ?? (DragUpdateDetails _) {})(details);
-        scale.value = scaleFinalValue;
+        scale.value = finalScale;
       },
       onVerticalDragEnd: (DragEndDetails details) {
         (onDragEnd ?? (DragEndDetails _) {})(details);
-        scale.value = scaleInitialValue;
+        scale.value = initialScale;
       },
       onVerticalDragCancel: () {
         (onDragCancel ?? () {})();
-        scale.value = scaleInitialValue;
+        scale.value = initialScale;
       },
       child: _SpringScale(
         scale: scale.value,

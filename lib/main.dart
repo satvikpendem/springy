@@ -111,6 +111,93 @@ Widget boxes(
 
   final ValueNotifier<List<Box>> boxData = useState<List<Box>>(_tempBoxData);
 
+  void handleTapDown(Box box) {
+    boxData.value = <Box>[
+      /// Move box to top of [Stack]
+      ...boxData.value.moveToEnd(box)
+    ];
+  }
+
+  void handleDragEnd(Box box) {
+    box
+      ..isDragging = false
+      ..target = 100.0 * box.position;
+    boxData.value = <Box>[...boxData.value];
+  }
+
+  void handleDragUpdate(DragUpdateDetails details, Box box, int index) {
+    box
+      ..isDragging = true
+      ..target += details.primaryDelta;
+
+    boxData.value = <Box>[
+      /// Move box to top of [Stack]
+      ...boxData.value.moveToEnd(box)
+    ];
+
+    List<Box> data;
+
+    List<Box> secondaryBoxes;
+
+    double targetChange = 100;
+    int positionChange = 1;
+
+    /// Moving down
+    /// If not the last box in the list
+    if (box.position < boxData.value.length - 1 &&
+        box.target > (100 * box.position) + 50) {
+      data = boxData.value
+        ..sort((Box a, Box b) => a.position.compareTo(b.position));
+
+      /// Finds boxes that should be topologically below the dragging element but still above all others
+      secondaryBoxes = data
+          .where((Box element) =>
+              element.position <= box.position + positionChange)
+          .toList();
+
+      targetChange = -targetChange;
+      positionChange = -positionChange;
+    }
+
+    /// Moving up
+    /// If not the first box in the list
+    else if (box.position > 0 && box.target <= (100 * box.position) - 50) {
+      data = boxData.value
+        ..sort((Box a, Box b) => a.position.compareTo(b.position));
+
+      /// Finds boxes that should be topologically below the dragging element but still above all others
+      ///
+      /// Since we always add to the end of the stack, there is an issue when moving up.
+      /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
+      /// behavior works fine, as we always add to the end of the stack. However, when we move up,
+      /// we must actually insert in reverse order as otherwise the items in the last position get
+      /// the higher stack value.
+      secondaryBoxes = data
+          .where((Box element) =>
+              element.position >= box.position - positionChange)
+          .toList()
+          .reversed
+          .toList();
+    }
+
+    if (data != null && data.isNotEmpty) {
+      /// When moving down, [positionChange] is -1, so in effect, box.position - positionChange becomes
+      /// box.position + 1, meaning we change the properties of the next box, and when moving up,
+      /// [positionChange] becomes (or rather, stays at) -1, changing the properties of the previous box.
+      data[box.position - positionChange]
+        ..target += targetChange
+        ..position += positionChange;
+      data[box.position].position -= positionChange;
+
+      /// Only reindex the secondary boxes after data's position has been set, not before
+      if (secondaryBoxes != null && secondaryBoxes.isNotEmpty) {
+        secondaryBoxes.forEach(data.moveToEnd);
+      }
+
+      boxData.value = <Box>[...data.moveToEnd(box)];
+    }
+  }
+
   return SingleChildScrollView(
     child: Stack(
       children: <Widget>[
@@ -128,94 +215,14 @@ Widget boxes(
 
             return SpringTransition(
               key: ValueKey<Box>(box),
+              finalScale: 1.25,
               toX: (MediaQuery.of(context).size.width - 125) / 2,
               toY: box.target,
               suppressAnimation: box.isDragging,
-              onTapDown: (_) {
-                boxData.value = <Box>[
-                  /// Move box to top of [Stack]
-                  ...boxData.value.moveToEnd(box)
-                ];
-              },
-              onDragUpdate: (DragUpdateDetails details) {
-                box
-                  ..isDragging = true
-                  ..target += details.primaryDelta;
-
-                boxData.value = <Box>[
-                  /// Move box to top of [Stack]
-                  ...boxData.value.moveToEnd(box)
-                ];
-
-                List<Box> data;
-
-                List<Box> secondaryBoxes;
-
-                double targetChange = 100;
-                int positionChange = 1;
-
-                /// Moving down
-                /// If not the last box in the list
-                if (box.position < boxData.value.length - 1 &&
-                    box.target > (100 * box.position) + 50) {
-                  data = boxData.value
-                    ..sort((Box a, Box b) => a.position.compareTo(b.position));
-
-                  /// Finds boxes that should be topologically below the dragging element but still above all others
-                  secondaryBoxes = data
-                      .where((Box element) =>
-                          element.position <= box.position + positionChange)
-                      .toList();
-
-                  targetChange = -targetChange;
-                  positionChange = -positionChange;
-                }
-
-                /// Moving up
-                /// If not the first box in the list
-                else if (box.position > 0 &&
-                    box.target <= (100 * box.position) - 50) {
-                  data = boxData.value
-                    ..sort((Box a, Box b) => a.position.compareTo(b.position));
-
-                  /// Finds boxes that should be topologically below the dragging element but still above all others
-                  ///
-                  /// Since we always add to the end of the stack, there is an issue when moving up.
-                  /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
-                  /// behavior works fine, as we always add to the end of the stack. However, when we move up,
-                  /// we must actually insert in reverse order as otherwise the items in the last position get
-                  /// the higher stack value.
-                  secondaryBoxes = data
-                      .where((Box element) =>
-                          element.position >= box.position - positionChange)
-                      .toList()
-                      .reversed
-                      .toList();
-                }
-
-                if (data != null && data.isNotEmpty) {
-                  /// When moving down, [positionChange] is -1, so in effect, box.position - positionChange becomes
-                  /// box.position + 1, meaning we change the properties of the next box, and when moving up,
-                  /// [positionChange] becomes (or rather, stays at) -1, changing the properties of the previous box.
-                  data[box.position - positionChange]
-                    ..target += targetChange
-                    ..position += positionChange;
-                  data[box.position].position -= positionChange;
-
-                  /// Only reindex the secondary boxes after data's position has been set, not before
-                  if (secondaryBoxes != null && secondaryBoxes.isNotEmpty) {
-                    secondaryBoxes.forEach(data.moveToEnd);
-                  }
-
-                  boxData.value = <Box>[...data.moveToEnd(box)];
-                }
-              },
-              onDragEnd: (_) {
-                box
-                  ..isDragging = false
-                  ..target = 100.0 * box.position;
-                boxData.value = <Box>[...boxData.value];
-              },
+              onTapDown: (_) => handleTapDown(box),
+              onDragUpdate: (DragUpdateDetails details) =>
+                  handleDragUpdate(details, box, index),
+              onDragEnd: (_) => handleDragEnd(box),
               child: SpringBox(
                   description:
                       'I: $index, P: ${box.position}, T: ${box.target.round()}',
@@ -227,17 +234,3 @@ Widget boxes(
     ),
   );
 }
-
-/// Box
-// @hwidget
-// Widget box(
-//   BuildContext context, {
-//   @required int index,
-//   @required double target,
-// }) =>
-//     SpringTransition(
-//       scaleFinalValue: 2,
-//       toX: (MediaQuery.of(context).size.width - 125) / 2,
-//       toY: target,
-//       child: SpringBox(color: colors[index]),
-//     );

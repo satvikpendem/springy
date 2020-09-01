@@ -47,10 +47,10 @@ class Box {
 
 /// Default [Color] list
 const List<Color> kColorList = <Color>[
-  Colors.red,
+  Colors.black,
   Colors.blue,
   Colors.green,
-  Colors.orange,
+  Colors.grey,
   Colors.purple,
   Colors.brown,
   Colors.teal,
@@ -142,10 +142,16 @@ Widget boxes(
     double targetChange = 100;
     int positionChange = 1;
 
+    final List<Box> positions = boxData.value.toList()
+      ..sort((Box a, Box b) => a.position.compareTo(b.position));
+
     /// Moving down
     /// If not the last box in the list
-    if (box.position < boxData.value.length - 1 &&
-        box.target > (100 * box.position) + 50) {
+    final List<Box> sub = positions.sublist(0, box.position);
+
+    // TODO(satvikpendem): Breaks when last box in [box.position + 1]
+    if (box.target > sumHeight(sub) + positions[box.position + 1].height / 2 &&
+        box.position < boxData.value.length - 1) {
       data = boxData.value
         ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
@@ -161,7 +167,16 @@ Widget boxes(
 
     /// Moving up
     /// If not the first box in the list
-    else if (box.position > 0 && box.target <= (100 * box.position) - 50) {
+    // TODO(satvikpendem): Breaks when first box in [box.position - 1]
+    else if (box.target <=
+            sumHeight(sub) - positions[box.position - 1].height / 2 &&
+        box.position > 0) {
+      final List<Box> sub = positions.sublist(0, box.position);
+
+      print(sub);
+
+      // if (box.target <=
+      //     sumHeight(sub) - positions[box.position - 1].height / 2) {
       data = boxData.value
         ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
@@ -178,6 +193,7 @@ Widget boxes(
           .toList()
           .reversed
           .toList();
+      // }
     }
 
     if (data != null && data.isNotEmpty) {

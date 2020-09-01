@@ -99,6 +99,7 @@ Widget boxes(
         /// Initially set the [target] to 0
         target: 0,
         position: index,
+        height: 200,
       ),
     )..map((Box element) {
         /// Set the box's [target] to be the [cumulativeHeight] so far, and increment it
@@ -119,9 +120,12 @@ Widget boxes(
   }
 
   void handleDragEnd(Box box) {
+    final List<Box> positions = boxData.value.toList()
+      ..sort((Box a, Box b) => a.position.compareTo(b.position));
+
     box
       ..isDragging = false
-      ..target = 100.0 * box.position;
+      ..target = sumHeight(positions.sublist(0, box.position));
     boxData.value = <Box>[...boxData.value];
   }
 
@@ -149,51 +153,50 @@ Widget boxes(
     /// If not the last box in the list
     final List<Box> sub = positions.sublist(0, box.position);
 
-    // TODO(satvikpendem): Breaks when last box in [box.position + 1]
-    if (box.target > sumHeight(sub) + positions[box.position + 1].height / 2 &&
-        box.position < boxData.value.length - 1) {
-      data = boxData.value
-        ..sort((Box a, Box b) => a.position.compareTo(b.position));
+    if (box.position > 0 && box.position < boxData.value.length - 1) {
+      if (box.target >
+          sumHeight(sub) + positions[box.position + 1].height / 2) {
+        data = boxData.value
+          ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
-      /// Finds boxes that should be topologically below the dragging element but still above all others
-      secondaryBoxes = data
-          .where((Box element) =>
-              element.position <= box.position + positionChange)
-          .toList();
+        /// Finds boxes that should be topologically below the dragging element but still above all others
+        secondaryBoxes = data
+            .where((Box element) =>
+                element.position <= box.position + positionChange)
+            .toList();
 
-      targetChange = -targetChange;
-      positionChange = -positionChange;
-    }
+        targetChange = -targetChange;
+        positionChange = -positionChange;
+      }
 
-    /// Moving up
-    /// If not the first box in the list
-    // TODO(satvikpendem): Breaks when first box in [box.position - 1]
-    else if (box.target <=
-            sumHeight(sub) - positions[box.position - 1].height / 2 &&
-        box.position > 0) {
-      final List<Box> sub = positions.sublist(0, box.position);
+      /// Moving up
+      /// If not the first box in the list
+      else if (box.target <=
+          sumHeight(sub) - positions[box.position - 1].height / 2) {
+        final List<Box> sub = positions.sublist(0, box.position);
 
-      print(sub);
+        print(sub);
 
-      // if (box.target <=
-      //     sumHeight(sub) - positions[box.position - 1].height / 2) {
-      data = boxData.value
-        ..sort((Box a, Box b) => a.position.compareTo(b.position));
+        // if (box.target <=
+        //     sumHeight(sub) - positions[box.position - 1].height / 2) {
+        data = boxData.value
+          ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
-      /// Finds boxes that should be topologically below the dragging element but still above all others
-      ///
-      /// Since we always add to the end of the stack, there is an issue when moving up.
-      /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
-      /// behavior works fine, as we always add to the end of the stack. However, when we move up,
-      /// we must actually insert in reverse order as otherwise the items in the last position get
-      /// the higher stack value.
-      secondaryBoxes = data
-          .where((Box element) =>
-              element.position >= box.position - positionChange)
-          .toList()
-          .reversed
-          .toList();
-      // }
+        /// Finds boxes that should be topologically below the dragging element but still above all others
+        ///
+        /// Since we always add to the end of the stack, there is an issue when moving up.
+        /// The issue occurs when a box is dragged up rather than down, as when going down, the stack
+        /// behavior works fine, as we always add to the end of the stack. However, when we move up,
+        /// we must actually insert in reverse order as otherwise the items in the last position get
+        /// the higher stack value.
+        secondaryBoxes = data
+            .where((Box element) =>
+                element.position >= box.position - positionChange)
+            .toList()
+            .reversed
+            .toList();
+        // }
+      }
     }
 
     if (data != null && data.isNotEmpty) {
@@ -240,6 +243,7 @@ Widget boxes(
                   handleDragUpdate(details, box, index),
               onDragEnd: (_) => handleDragEnd(box),
               child: SpringBox(
+                  height: box.height,
                   description:
                       'I: $index, P: ${box.position}, T: ${box.target.round()}',
                   color: box.color),

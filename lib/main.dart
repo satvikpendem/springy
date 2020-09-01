@@ -62,6 +62,8 @@ const int kNumBoxes = 10;
 /// Heights to use for testing
 const List<double> kHeightList = [100, 200, 300];
 
+const double kWidth = 300;
+
 /// App
 @hwidget
 Widget app() => MaterialApp(
@@ -218,7 +220,7 @@ Widget boxes(
         Padding(
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).size.height * 2,
-            right: MediaQuery.of(context).size.width,
+            // right: MediaQuery.of(context).size.width,
             left: MediaQuery.of(context).size.width,
           ),
         ),
@@ -230,7 +232,7 @@ Widget boxes(
             return SpringTransition(
               key: ValueKey<Box>(box),
               finalScale: 1.1,
-              toX: (MediaQuery.of(context).size.width) * (3 / 8),
+              toX: (MediaQuery.of(context).size.width - kWidth) / 2,
               toY: box.target,
               suppressAnimation: box.isDragging,
               onTapDown: (_) => handleTapDown(box),
@@ -239,7 +241,7 @@ Widget boxes(
               onDragEnd: (_) => handleDragEnd(box),
               child: SpringBox(
                   height: box.height,
-                  width: 400,
+                  width: kWidth,
                   description:
                       'I: $index, P: ${box.position}, T: ${box.target.round()}',
                   color: box.color),

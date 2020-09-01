@@ -49,13 +49,13 @@ class Box {
 
 /// Default [Color] list
 const List<Color> kColorList = <Color>[
-  Colors.black,
-  Colors.blue,
+  Colors.red,
+  Colors.orange,
+  Colors.yellow,
   Colors.green,
-  Colors.grey,
+  Colors.blue,
+  Colors.indigo,
   Colors.purple,
-  Colors.brown,
-  Colors.teal,
 ];
 
 /// Number of boxes to generate
@@ -116,24 +116,24 @@ Widget boxes(
       }).toList();
   }
 
-  final ValueNotifier<List<Box>> boxData =
+  final ValueNotifier<List<Box>> boxList =
       useState<List<Box>>(generateBoxList());
 
   void handleTapDown(Box box) {
-    boxData.value = <Box>[
+    boxList.value = <Box>[
       /// Move box to top of [Stack]
-      ...boxData.value.moveToEnd(box)
+      ...boxList.value.moveToEnd(box)
     ];
   }
 
   void handleDragEnd(Box box) {
-    final List<Box> positions = boxData.value.toList()
+    final List<Box> positions = boxList.value.toList()
       ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
     box
       ..isDragging = false
       ..target = sumHeight(positions.sublist(0, box.position));
-    boxData.value = <Box>[...boxData.value];
+    boxList.value = <Box>[...boxList.value];
   }
 
   void handleDragUpdate(DragUpdateDetails details, Box box, int index) {
@@ -141,9 +141,9 @@ Widget boxes(
       ..isDragging = true
       ..target += details.primaryDelta;
 
-    boxData.value = <Box>[
+    boxList.value = <Box>[
       /// Move box to top of [Stack]
-      ...boxData.value.moveToEnd(box)
+      ...boxList.value.moveToEnd(box)
     ];
 
     List<Box> data;
@@ -153,16 +153,16 @@ Widget boxes(
     double targetChange = box.height;
     int positionChange = 1;
 
-    final List<Box> positions = boxData.value.toList()
+    final List<Box> positions = boxList.value.toList()
       ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
     final List<Box> sub = positions.sublist(0, box.position);
 
     /// Moving down
     /// If not the last box in the list
-    if (box.position < boxData.value.length - 1 &&
+    if (box.position < boxList.value.length - 1 &&
         box.target > sumHeight(sub) + positions[box.position + 1].height / 2) {
-      data = boxData.value
+      data = boxList.value
         ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
       /// Finds boxes that should be topologically below the dragging element but still above all others
@@ -179,7 +179,7 @@ Widget boxes(
     /// If not the first box in the list
     else if (box.position > 0 &&
         box.target <= sumHeight(sub) - positions[box.position - 1].height / 2) {
-      data = boxData.value
+      data = boxList.value
         ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
       /// Finds boxes that should be topologically below the dragging element but still above all others
@@ -211,24 +211,25 @@ Widget boxes(
         secondaryBoxes.forEach(data.moveToEnd);
       }
 
-      boxData.value = <Box>[...data.moveToEnd(box)];
+      boxList.value = <Box>[...data.moveToEnd(box)];
     }
   }
 
   return SingleChildScrollView(
+    physics:
+        const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
     child: Stack(
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).size.height * 2,
-            // right: MediaQuery.of(context).size.width,
             left: MediaQuery.of(context).size.width,
           ),
         ),
         ...List<Widget>.generate(
-          boxData.value.length,
+          boxList.value.length,
           (int index) {
-            final Box box = boxData.value[index];
+            final Box box = boxList.value[index];
             final double width =
                 max(MediaQuery.of(context).size.width / 2, kMaxWidth);
 

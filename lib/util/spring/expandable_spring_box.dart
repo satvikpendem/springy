@@ -54,16 +54,18 @@ Widget expandableSpringBox({
   // );
 
   return Column(
-    children: [
+    children: <Widget>[
       Container(
         // margin: const EdgeInsets.all(10),
         width: width,
         height: heightAnimation.value - 20,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
         ),
-        padding: const EdgeInsets.all(10),
         alignment: Alignment.center,
         child: Text(
           description,
@@ -80,7 +82,13 @@ Widget expandableSpringBox({
           onVerticalDragEnd: onDragEnd,
           child: Container(
             width: width,
-            color: Colors.white,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+              ),
+            ),
           ),
         ),
       )

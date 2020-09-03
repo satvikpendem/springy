@@ -73,46 +73,36 @@ const int kNumBoxes = 10;
 /// Max width to use for boxes
 const double kMaxWidth = 300;
 
-///
+/// Initial height list
+const List<double> kHeightList = <double>[100, 200, 300];
+
+/// List equality function
 bool Function(List<double> list1, List<double> list2) eq =
     const ListEquality<double>().equals;
 
 /// App
 @hwidget
-Widget app() {
-  /// Heights to use for testing
-  final ValueNotifier<List<double>> kHeightList =
-      useState<List<double>>(<double>[100, 200, 300]);
-
-  return MaterialApp(
-    theme: ThemeData.dark().copyWith(
-      backgroundColor: Colors.black,
-      scaffoldBackgroundColor: Colors.black,
-      accentColor: const Color(0xFF6600FF),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        foregroundColor: Color(0xFF6600FF),
-      ),
-    ),
-    home: SafeArea(
-      child: Scaffold(
-        body: Center(
-          child: Boxes(heightList: kHeightList.value),
+Widget app() => MaterialApp(
+      theme: ThemeData.dark().copyWith(
+        backgroundColor: Colors.black,
+        scaffoldBackgroundColor: Colors.black,
+        accentColor: const Color(0xFF6600FF),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          foregroundColor: Color(0xFF6600FF),
         ),
-        floatingActionButton: FloatingActionButton(onPressed: () {
-          print('pressed');
-          kHeightList.value = eq(kHeightList.value, <double>[100, 200, 300])
-              ? <double>[100, 100, 100]
-              : <double>[100, 200, 300];
-          print(kHeightList.value);
-        }),
       ),
-    ),
-  );
-}
+      home: const SafeArea(
+        child: Scaffold(
+          body: Center(
+            child: Boxes(),
+          ),
+        ),
+      ),
+    );
 
 /// Boxes to tap and drag
 @hwidget
-Widget boxes(BuildContext context, {List<double> heightList}) {
+Widget boxes(BuildContext context) {
   double sumHeight(List<Box> list) => list.fold<double>(
       0, (double previousValue, Box element) => previousValue + element.height);
 
@@ -128,7 +118,7 @@ Widget boxes(BuildContext context, {List<double> heightList}) {
         /// Initially set the [target] to 0
         target: 0,
         position: index,
-        height: heightList[index % heightList.length],
+        height: kHeightList[index % kHeightList.length],
       ),
     )..map((Box element) {
         /// Set the box's [target] to be the [cumulativeHeight] so far, and increment it
@@ -139,20 +129,6 @@ Widget boxes(BuildContext context, {List<double> heightList}) {
 
   final ValueNotifier<List<Box>> boxList =
       useState<List<Box>>(generateBoxList());
-
-  useEffect(() {
-    final List<Box> data = boxList.value.toList()
-      ..sort((Box a, Box b) => a.position.compareTo(b.position));
-    double cumulativeHeight = 0;
-
-    for (int i = 0; i < data.length; i++) {
-      data[i].height = heightList[i % heightList.length];
-      data[i].target = cumulativeHeight;
-      cumulativeHeight += data[i].height;
-    }
-    boxList.value = data;
-    return;
-  }, <dynamic>[heightList]);
 
   void handleTapDown(Box box) {
     boxList.value = <Box>[
@@ -285,14 +261,31 @@ Widget boxes(BuildContext context, {List<double> heightList}) {
                       ..isDragging = true
                       ..finalScale = 1
                       ..height += details.primaryDelta;
-                    print(box.isDragging);
-                    boxList.value = [...boxList.value];
+
+                    /// Move box to top of [Stack]
+                    boxList.value = <Box>[...boxList.value.moveToEnd(box)];
+
+                    final List<Box> data = boxList.value.toList()
+                      ..sort(
+                          (Box a, Box b) => a.position.compareTo(b.position));
+
+                    if (box.position < boxList.value.length - 1) {
+                      for (int i = box.position + 1; i < data.length; i++) {
+                        data[i].isDragging = true;
+                        data[i].target += details.primaryDelta;
+                      }
+                    }
                   },
                   onDragEnd: (DragEndDetails details) {
                     box
                       ..isDragging = false
                       ..finalScale = 1.1;
-                    boxList.value = [...boxList.value];
+
+                    for (int i = 0; i < boxList.value.length; i++) {
+                      boxList.value[i].isDragging = false;
+                    }
+
+                    boxList.value = <Box>[...boxList.value];
                   },
                   suppressAnimation: box.isDragging,
                   height: box.height,

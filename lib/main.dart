@@ -71,7 +71,7 @@ const List<Color> kColorList = <Color>[
 const int kNumBoxes = 10;
 
 /// Max width to use for boxes
-const double kMaxWidth = 300;
+const double kMaxWidth = 200;
 
 /// Initial height list
 const List<double> kHeightList = <double>[100, 200, 300];
@@ -230,10 +230,15 @@ Widget boxes(BuildContext context) {
     physics:
         const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
     child: Stack(
+      // TODO(satvikpendem): Replace [Stack] with [CustomMultiChildLayout]
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height * 2,
+            // top: MediaQuery.of(context).size.height * 2,
+            top: boxList.value.fold(
+                0,
+                (double previousValue, Box element) =>
+                    previousValue + element.height),
             left: MediaQuery.of(context).size.width,
           ),
         ),

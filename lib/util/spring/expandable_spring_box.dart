@@ -11,13 +11,18 @@ part 'expandable_spring_box.g.dart';
 @hwidget
 Widget expandableSpringBox({
   @required void Function(DragUpdateDetails details) onDragUpdate,
+  @required void Function(DragEndDetails details) onDragEnd,
+  bool suppressAnimation = false,
   String description = 'Box',
   Color color = Colors.blue,
   Color descriptionColor = Colors.white,
   double width = 100,
   double height = 100,
 }) {
-  final AnimationController heightAnimation = useSpringAnimation(height);
+  final AnimationController heightAnimation = useSpringAnimation(
+    height,
+    suppressAnimation: suppressAnimation,
+  );
 
   // return
   // Column(
@@ -72,6 +77,7 @@ Widget expandableSpringBox({
         height: 20,
         child: GestureDetector(
           onVerticalDragUpdate: onDragUpdate,
+          onVerticalDragEnd: onDragEnd,
           child: Container(
             width: width,
             color: Colors.white,

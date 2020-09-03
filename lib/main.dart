@@ -282,11 +282,19 @@ Widget boxes(BuildContext context, {List<double> heightList}) {
                   onDragUpdate: (DragUpdateDetails details) {
                     // print('dragging');
                     box
-                      ..isDragging = false
+                      ..isDragging = true
                       ..finalScale = 1
                       ..height += details.primaryDelta;
+                    print(box.isDragging);
                     boxList.value = [...boxList.value];
                   },
+                  onDragEnd: (DragEndDetails details) {
+                    box
+                      ..isDragging = false
+                      ..finalScale = 1.1;
+                    boxList.value = [...boxList.value];
+                  },
+                  suppressAnimation: box.isDragging,
                   height: box.height,
                   width: width,
                   description:

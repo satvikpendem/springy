@@ -24,7 +24,7 @@ class Box {
     this.color = Colors.blue,
     this.isDragging = false,
     this.initialScale = 1,
-    this.finalScale = 1.1,
+    this.finalScale = kFinalScale,
   });
 
   /// [Color] of the box
@@ -75,6 +75,9 @@ const double kMaxWidth = 200;
 
 /// Initial height list
 const List<double> kHeightList = <double>[100, 200, 300];
+
+/// Max finalScale when dragging
+const double kFinalScale = 1.1;
 
 /// List equality function
 bool Function(List<double> list1, List<double> list2) eq =
@@ -173,7 +176,7 @@ Widget boxes(BuildContext context) {
     /// If not the last box in the list
     if (box.position < boxList.value.length - 1 &&
         box.target > sumHeight(sub) + positions[box.position + 1].height / 2) {
-      data = boxList.value
+      data = boxList.value.toList()
         ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
       /// Finds boxes that should be topologically below the dragging element but still above all others
@@ -182,6 +185,7 @@ Widget boxes(BuildContext context) {
               element.position <= box.position + positionChange)
           .toList();
 
+      /// Flip [targetChange] and [positionChange] if moving down
       targetChange = -targetChange;
       positionChange = -positionChange;
     }
@@ -190,7 +194,7 @@ Widget boxes(BuildContext context) {
     /// If not the first box in the list
     else if (box.position > 0 &&
         box.target <= sumHeight(sub) - positions[box.position - 1].height / 2) {
-      data = boxList.value
+      data = boxList.value.toList()
         ..sort((Box a, Box b) => a.position.compareTo(b.position));
 
       /// Finds boxes that should be topologically below the dragging element but still above all others
@@ -206,6 +210,8 @@ Widget boxes(BuildContext context) {
           .toList()
           .reversed
           .toList();
+
+      /// Don't flip [targetChange] and [positionChange] if moving up
     }
 
     if (data != null && data.isNotEmpty) {
@@ -234,7 +240,6 @@ Widget boxes(BuildContext context) {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(
-            // top: MediaQuery.of(context).size.height * 2,
             top: boxList.value.fold(
                 0,
                 (double previousValue, Box element) =>
@@ -283,13 +288,11 @@ Widget boxes(BuildContext context) {
                     }
                   },
                   onDragEnd: (DragEndDetails details) {
-                    box
-                      ..isDragging = false
-                      ..finalScale = 1.1;
-
-                    for (int i = 0; i < boxList.value.length; i++) {
-                      boxList.value[i].isDragging = false;
-                    }
+                    boxList.value
+                        .map((Box element) => element
+                          ..isDragging = false
+                          ..finalScale = kFinalScale)
+                        .toList();
 
                     boxList.value = <Box>[...boxList.value];
                   },

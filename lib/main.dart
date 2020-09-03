@@ -133,7 +133,15 @@ Widget boxes(BuildContext context, {List<double> heightList}) {
       useState<List<Box>>(generateBoxList());
 
   useEffect(() {
-    boxList.value = generateBoxList();
+    final List<Box> data = boxList.value;
+    double cumulativeHeight = 0;
+
+    for (int i = 0; i < data.length; i++) {
+      data[i].height = heightList[i % heightList.length];
+      data[i].target = cumulativeHeight;
+      cumulativeHeight += data[i].height;
+    }
+    boxList.value = data;
     return;
   }, [heightList]);
 

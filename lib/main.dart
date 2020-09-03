@@ -133,21 +133,28 @@ Widget boxes(BuildContext context) {
   final ValueNotifier<List<Box>> boxList =
       useState<List<Box>>(generateBoxList());
 
-  void handleTapDown(Box box) {
-    boxList.value = <Box>[
-      /// Move box to top of [Stack]
-      ...boxList.value.moveToEnd(box)
-    ];
+  List<Box> sortBoxList() => boxList.value.toList()
+    ..sort((Box a, Box b) => a.position.compareTo(b.position));
+
+  /// Move box to top of [Stack]
+  void topOfStack({List<Box> list, @required Box box}) {
+    list ??= boxList.value;
+    boxList.value = <Box>[...list.moveToEnd(box)];
   }
 
-  void handleDragEnd(Box box) {
-    final List<Box> positions = boxList.value.toList()
-      ..sort((Box a, Box b) => a.position.compareTo(b.position));
+  void setBoxList() => boxList.value = <Box>[...boxList.value];
 
+  void handleTapDown(Box box) => topOfStack(box: box);
+
+  void handleDragEnd(Box box) {
+    final List<Box> positions = sortBoxList();
+
+    /// Put box in its proper position by calculating all previous heights
     box
       ..isDragging = false
       ..target = sumHeight(positions.sublist(0, box.position));
-    boxList.value = <Box>[...boxList.value];
+
+    setBoxList();
   }
 
   void handleDragUpdate(DragUpdateDetails details, Box box, int index) {
@@ -155,10 +162,7 @@ Widget boxes(BuildContext context) {
       ..isDragging = true
       ..target += details.primaryDelta;
 
-    boxList.value = <Box>[
-      /// Move box to top of [Stack]
-      ...boxList.value.moveToEnd(box)
-    ];
+    topOfStack(box: box);
 
     List<Box> data;
 
@@ -167,17 +171,14 @@ Widget boxes(BuildContext context) {
     double targetChange = box.height;
     int positionChange = 1;
 
-    final List<Box> positions = boxList.value.toList()
-      ..sort((Box a, Box b) => a.position.compareTo(b.position));
-
+    final List<Box> positions = sortBoxList();
     final List<Box> sub = positions.sublist(0, box.position);
 
     /// Moving down
     /// If not the last box in the list
     if (box.position < boxList.value.length - 1 &&
         box.target > sumHeight(sub) + positions[box.position + 1].height / 2) {
-      data = boxList.value.toList()
-        ..sort((Box a, Box b) => a.position.compareTo(b.position));
+      data = sortBoxList();
 
       /// Finds boxes that should be topologically below the dragging element but still above all others
       secondaryBoxes = data
@@ -194,8 +195,7 @@ Widget boxes(BuildContext context) {
     /// If not the first box in the list
     else if (box.position > 0 &&
         box.target <= sumHeight(sub) - positions[box.position - 1].height / 2) {
-      data = boxList.value.toList()
-        ..sort((Box a, Box b) => a.position.compareTo(b.position));
+      data = sortBoxList();
 
       /// Finds boxes that should be topologically below the dragging element but still above all others
       ///
@@ -228,7 +228,7 @@ Widget boxes(BuildContext context) {
         secondaryBoxes.forEach(data.moveToEnd);
       }
 
-      boxList.value = <Box>[...data.moveToEnd(box)];
+      topOfStack(list: data, box: box);
     }
   }
 
@@ -266,42 +266,42 @@ Widget boxes(BuildContext context) {
                   handleDragUpdate(details, box, index),
               onDragEnd: (_) => handleDragEnd(box),
               child: ExpandableSpringBox(
-                  onDragUpdate: (DragUpdateDetails details) {
-                    // print('dragging');
-                    box
-                      ..isDragging = true
-                      ..finalScale = 1
-                      ..height += details.primaryDelta;
+                onDragUpdate: (DragUpdateDetails details) {
+                  box
+                    ..isDragging = true
+                    ..finalScale = 1
+                    ..height += details.primaryDelta;
 
-                    /// Move box to top of [Stack]
-                    boxList.value = <Box>[...boxList.value.moveToEnd(box)];
+                  topOfStack(box: box);
 
-                    final List<Box> data = boxList.value.toList()
-                      ..sort(
-                          (Box a, Box b) => a.position.compareTo(b.position));
-
-                    if (box.position < boxList.value.length - 1) {
-                      for (int i = box.position + 1; i < data.length; i++) {
-                        data[i].isDragging = true;
-                        data[i].target += details.primaryDelta;
-                      }
+                  boxList.value.map((Box element) {
+                    if (element.position > box.position) {
+                      return element
+                        ..isDragging = true
+                        ..target += details.primaryDelta;
+                    } else {
+                      return element;
                     }
-                  },
-                  onDragEnd: (DragEndDetails details) {
-                    boxList.value
-                        .map((Box element) => element
-                          ..isDragging = false
-                          ..finalScale = kFinalScale)
-                        .toList();
+                  }).toList();
 
-                    boxList.value = <Box>[...boxList.value];
-                  },
-                  suppressAnimation: box.isDragging,
-                  height: box.height,
-                  width: width,
-                  description:
-                      'I: $index, P: ${box.position}, T: ${box.target.round()}',
-                  color: box.color),
+                  setBoxList();
+                },
+                onDragEnd: (DragEndDetails details) {
+                  boxList.value
+                      .map((Box element) => element
+                        ..isDragging = false
+                        ..finalScale = kFinalScale)
+                      .toList();
+
+                  setBoxList();
+                },
+                suppressAnimation: box.isDragging,
+                height: box.height,
+                width: width,
+                description:
+                    'I: $index, P: ${box.position}, T: ${box.target.round()}',
+                color: box.color,
+              ),
             );
           },
         ),

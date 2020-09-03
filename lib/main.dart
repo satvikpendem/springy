@@ -274,15 +274,13 @@ Widget boxes(BuildContext context) {
 
                   topOfStack(box: box);
 
-                  boxList.value.map((Box element) {
-                    if (element.position > box.position) {
-                      return element
-                        ..isDragging = true
-                        ..target += details.primaryDelta;
-                    } else {
-                      return element;
-                    }
-                  }).toList();
+                  boxList.value
+                      .map((Box element) => element.position > box.position
+                          ? (element
+                            ..isDragging = true
+                            ..target += details.primaryDelta)
+                          : element)
+                      .toList();
 
                   setBoxList();
                 },

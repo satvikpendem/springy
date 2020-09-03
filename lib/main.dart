@@ -232,6 +232,41 @@ Widget boxes(BuildContext context) {
     }
   }
 
+  void handleExpandableDrag({
+    Box box,
+    bool isDown,
+    DragUpdateDetails details,
+  }) {
+    topOfStack(box: box);
+
+    boxList.value
+        .map((Box element) =>
+
+            /// We want to change the `>` and `<` operators for whether we are dragging down or up respectively.
+            isDown
+
+                /// If [isDown], then we must change the targets of all [element]s greater than the [box], since they
+                /// must be pushed down. If not [isDown], ie up, the we must change the targets of all [element]s less
+                /// than the [box]
+                ? ((element.position > box.position)
+
+                    /// We use whatever was the correct comparision to check whether we should return a moving
+                    /// [element], signified by [isDragging] and [target] being added onto with [details.primaryDelta],
+                    /// or an element that does not need to move
+                    ? (element
+                      ..isDragging = true
+                      ..target += details.primaryDelta)
+                    : element)
+                : ((element.position < box.position)
+                    ? (element
+                      ..isDragging = true
+                      ..target += details.primaryDelta)
+                    : element))
+        .toList();
+
+    setBoxList();
+  }
+
   return SingleChildScrollView(
     physics:
         const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -279,35 +314,28 @@ Widget boxes(BuildContext context) {
                     /// Decrease target
                     ..target += details.primaryDelta;
 
-                  topOfStack(box: box);
-
-                  boxList.value
-                      .map((Box element) => element.position < box.position
-                          ? (element
-                            ..isDragging = true
-                            ..target += details.primaryDelta)
-                          : element)
-                      .toList();
-
-                  setBoxList();
+                  handleExpandableDrag(
+                    box: box,
+                    isDown: false,
+                    details: details,
+                  );
                 },
                 onDragUpdateBottom: (DragUpdateDetails details) {
                   box
                     ..isDragging = true
                     ..finalScale = 1
+
+                    /// When dragging down, [details.primaryDelta] will be positive
+                    ///
+                    /// Increase height
+                    /// No need to increase target as it automatically increases when height does
                     ..height += details.primaryDelta;
 
-                  topOfStack(box: box);
-
-                  boxList.value
-                      .map((Box element) => element.position > box.position
-                          ? (element
-                            ..isDragging = true
-                            ..target += details.primaryDelta)
-                          : element)
-                      .toList();
-
-                  setBoxList();
+                  handleExpandableDrag(
+                    box: box,
+                    isDown: true,
+                    details: details,
+                  );
                 },
                 onDragEnd: (DragEndDetails details) {
                   boxList.value

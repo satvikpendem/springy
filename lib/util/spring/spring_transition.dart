@@ -67,6 +67,7 @@ Widget springTransition(
     left: x.value,
     top: y.value,
     child: GestureDetector(
+      behavior: HitTestBehavior.deferToChild,
       onTapDown: (TapDownDetails details) {
         (onTapDown ??= (TapDownDetails _) {})(details);
         scale.value = finalScale;

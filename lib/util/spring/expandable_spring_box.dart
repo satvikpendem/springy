@@ -2,10 +2,13 @@ import 'package:flutter/foundation.dart'; // required for functional_widget_anno
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart'; // required for @hwidget functional_widget_annotation
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
+import 'package:flutter_color/flutter_color.dart';
 
 import 'use_spring_animation.dart';
 
 part 'expandable_spring_box.g.dart';
+
+const double kExpandableHeight = 20;
 
 /// [Container] for testing [Animation]s
 @hwidget
@@ -24,41 +27,11 @@ Widget expandableSpringBox({
     suppressAnimation: suppressAnimation,
   );
 
-  // return
-  // Column(
-  //   mainAxisSize: MainAxisSize.min,
-  //   children: <Widget>[
-  //     SizedBox(
-  //       width: width,
-  //       child: Container(
-  //         height: heightAnimation.value - 20,
-  //         color: color,
-  //         child: Column(
-  //           children: <Widget>[
-  //             Text('$height'),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //     Container(
-  //       height: 20,
-  //       child: GestureDetector(
-  //         onVerticalDragUpdate: onDragUpdate,
-  //         child: Container(
-  //           color: Colors.green,
-  //           alignment: Alignment.center,
-  //         ),
-  //       ),
-  //     )
-  //   ],
-  // );
-
   return Column(
     children: <Widget>[
       Container(
-        // margin: const EdgeInsets.all(10),
         width: width,
-        height: heightAnimation.value - 20,
+        height: heightAnimation.value - kExpandableHeight,
         decoration: BoxDecoration(
           color: color,
           borderRadius: const BorderRadius.only(
@@ -75,15 +48,15 @@ Widget expandableSpringBox({
           ),
         ),
       ),
-      Container(
-        height: 20,
+      SizedBox(
+        height: kExpandableHeight,
         child: GestureDetector(
           onVerticalDragUpdate: onDragUpdate,
           onVerticalDragEnd: onDragEnd,
           child: Container(
             width: width,
             decoration: BoxDecoration(
-              color: color,
+              color: color.darker(10),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(10),
                 bottomRight: Radius.circular(10),

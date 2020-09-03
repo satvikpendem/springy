@@ -251,6 +251,7 @@ Widget boxes(BuildContext context) {
               toY: box.target,
               suppressAnimation: box.isDragging,
               onTapDown: (_) => handleTapDown(box),
+              onDragStart: (_) => handleTapDown(box),
               onDragUpdate: (DragUpdateDetails details) =>
                   handleDragUpdate(details, box, index),
               onDragEnd: (_) => handleDragEnd(box),

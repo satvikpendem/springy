@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:collection/collection.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 
 import 'util/extensions/list.dart';
-import 'util/spring/spring_box.dart';
+import 'util/spring/expandable_spring_box.dart';
 import 'util/spring/spring_transition.dart';
 
 part 'main.g.dart';
@@ -61,37 +62,49 @@ const List<Color> kColorList = <Color>[
 /// Number of boxes to generate
 const int kNumBoxes = 10;
 
-/// Heights to use for testing
-const List<double> kHeightList = <double>[100, 200, 300];
-
 /// Max width to use for boxes
 const double kMaxWidth = 300;
 
+///
+bool Function(List<double> list1, List<double> list2) eq =
+    const ListEquality<double>().equals;
+
 /// App
 @hwidget
-Widget app() => MaterialApp(
-      theme: ThemeData.dark().copyWith(
-        backgroundColor: Colors.black,
-        scaffoldBackgroundColor: Colors.black,
-        accentColor: const Color(0xFF6600FF),
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          foregroundColor: Color(0xFF6600FF),
-        ),
+Widget app() {
+  /// Heights to use for testing
+  final ValueNotifier<List<double>> kHeightList =
+      useState<List<double>>(<double>[100, 200, 300]);
+
+  return MaterialApp(
+    theme: ThemeData.dark().copyWith(
+      backgroundColor: Colors.black,
+      scaffoldBackgroundColor: Colors.black,
+      accentColor: const Color(0xFF6600FF),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        foregroundColor: Color(0xFF6600FF),
       ),
-      home: const SafeArea(
-        child: Scaffold(
-          body: Center(
-            child: Boxes(),
-          ),
+    ),
+    home: SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: Boxes(heightList: kHeightList.value),
         ),
+        floatingActionButton: FloatingActionButton(onPressed: () {
+          print('pressed');
+          kHeightList.value = eq(kHeightList.value, <double>[100, 200, 300])
+              ? <double>[100, 100, 100]
+              : <double>[100, 200, 300];
+          print(kHeightList.value);
+        }),
       ),
-    );
+    ),
+  );
+}
 
 /// Boxes to tap and drag
 @hwidget
-Widget boxes(
-  BuildContext context,
-) {
+Widget boxes(BuildContext context, {List<double> heightList}) {
   double sumHeight(List<Box> list) => list.fold<double>(
       0, (double previousValue, Box element) => previousValue + element.height);
 
@@ -107,7 +120,7 @@ Widget boxes(
         /// Initially set the [target] to 0
         target: 0,
         position: index,
-        height: kHeightList[index % kHeightList.length],
+        height: heightList[index % heightList.length],
       ),
     )..map((Box element) {
         /// Set the box's [target] to be the [cumulativeHeight] so far, and increment it
@@ -118,6 +131,11 @@ Widget boxes(
 
   final ValueNotifier<List<Box>> boxList =
       useState<List<Box>>(generateBoxList());
+
+  useEffect(() {
+    boxList.value = generateBoxList();
+    return;
+  }, [heightList]);
 
   void handleTapDown(Box box) {
     boxList.value = <Box>[
@@ -243,7 +261,7 @@ Widget boxes(
               onDragUpdate: (DragUpdateDetails details) =>
                   handleDragUpdate(details, box, index),
               onDragEnd: (_) => handleDragEnd(box),
-              child: SpringBox(
+              child: ExpandableSpringBox(
                   height: box.height,
                   width: width,
                   description:

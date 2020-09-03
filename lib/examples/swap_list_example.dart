@@ -62,7 +62,7 @@ const List<Color> kColorList = <Color>[
 const int kNumBoxes = 10;
 
 /// Heights to use for testing
-const List<double> kHeightList = <double>[100, 200, 300];
+const List<double> kHeightList = <double>[1000, 200, 300];
 
 /// Max width to use for boxes
 const double kMaxWidth = 300;

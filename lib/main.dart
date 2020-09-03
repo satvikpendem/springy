@@ -23,6 +23,8 @@ class Box {
     this.height = 100,
     this.color = Colors.blue,
     this.isDragging = false,
+    this.initialScale = 1,
+    this.finalScale = 1.1,
   });
 
   /// [Color] of the box
@@ -39,6 +41,12 @@ class Box {
 
   /// Whether this element is being dragged, for suppressing animation if so
   bool isDragging;
+
+  /// The initial scale value when dragging
+  double initialScale;
+
+  /// The final scale value when dragging
+  double finalScale;
 
   @override
   String toString() {
@@ -144,7 +152,7 @@ Widget boxes(BuildContext context, {List<double> heightList}) {
     }
     boxList.value = data;
     return;
-  }, [heightList]);
+  }, <dynamic>[heightList]);
 
   void handleTapDown(Box box) {
     boxList.value = <Box>[
@@ -262,7 +270,7 @@ Widget boxes(BuildContext context, {List<double> heightList}) {
 
             return SpringTransition(
               key: ValueKey<Box>(box),
-              finalScale: 1.1,
+              finalScale: box.finalScale,
               toX: (MediaQuery.of(context).size.width - width) / 2,
               toY: box.target,
               suppressAnimation: box.isDragging,
@@ -271,6 +279,14 @@ Widget boxes(BuildContext context, {List<double> heightList}) {
                   handleDragUpdate(details, box, index),
               onDragEnd: (_) => handleDragEnd(box),
               child: ExpandableSpringBox(
+                  onDragUpdate: (DragUpdateDetails details) {
+                    // print('dragging');
+                    box
+                      ..isDragging = false
+                      ..finalScale = 1
+                      ..height += details.primaryDelta;
+                    boxList.value = [...boxList.value];
+                  },
                   height: box.height,
                   width: width,
                   description:

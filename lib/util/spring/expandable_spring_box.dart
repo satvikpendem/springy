@@ -13,7 +13,8 @@ const double kExpandableHeight = 20;
 /// [Container] for testing [Animation]s
 @hwidget
 Widget expandableSpringBox({
-  @required void Function(DragUpdateDetails details) onDragUpdate,
+  @required void Function(DragUpdateDetails details) onDragUpdateTop,
+  @required void Function(DragUpdateDetails details) onDragUpdateBottom,
   @required void Function(DragEndDetails details) onDragEnd,
   bool suppressAnimation = false,
   String description = 'Box',
@@ -29,15 +30,28 @@ Widget expandableSpringBox({
 
   return Column(
     children: <Widget>[
+      SizedBox(
+        height: kExpandableHeight,
+        child: GestureDetector(
+          onVerticalDragUpdate: onDragUpdateTop,
+          onVerticalDragEnd: onDragEnd,
+          child: Container(
+            width: width,
+            decoration: BoxDecoration(
+              color: color.darker(10),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+            ),
+          ),
+        ),
+      ),
       Container(
         width: width,
-        height: heightAnimation.value - kExpandableHeight,
+        height: heightAnimation.value - kExpandableHeight * 2,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-          ),
         ),
         alignment: Alignment.center,
         child: Text(
@@ -51,7 +65,7 @@ Widget expandableSpringBox({
       SizedBox(
         height: kExpandableHeight,
         child: GestureDetector(
-          onVerticalDragUpdate: onDragUpdate,
+          onVerticalDragUpdate: onDragUpdateBottom,
           onVerticalDragEnd: onDragEnd,
           child: Container(
             width: width,

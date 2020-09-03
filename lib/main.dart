@@ -266,7 +266,32 @@ Widget boxes(BuildContext context) {
                   handleDragUpdate(details, box, index),
               onDragEnd: (_) => handleDragEnd(box),
               child: ExpandableSpringBox(
-                onDragUpdate: (DragUpdateDetails details) {
+                onDragUpdateTop: (DragUpdateDetails details) {
+                  box
+                    ..isDragging = true
+                    ..finalScale = 1
+
+                    /// When dragging up, [details.primaryDelta] will be negative, so operations are flipped
+                    ///
+                    /// Increase height
+                    ..height -= details.primaryDelta
+
+                    /// Decrease target
+                    ..target += details.primaryDelta;
+
+                  topOfStack(box: box);
+
+                  boxList.value
+                      .map((Box element) => element.position < box.position
+                          ? (element
+                            ..isDragging = true
+                            ..target += details.primaryDelta)
+                          : element)
+                      .toList();
+
+                  setBoxList();
+                },
+                onDragUpdateBottom: (DragUpdateDetails details) {
                   box
                     ..isDragging = true
                     ..finalScale = 1

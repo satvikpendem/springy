@@ -5,6 +5,7 @@ import '../main.dart';
 class PositionList {
   PositionList._internal({@required this.list, @required this.position});
 
+  /// @deprecated
   static Future<PositionList> create(
       {@required List<Box> list, @required int position}) async {
     final List<Box> positions = await compute(_sortList, list);
